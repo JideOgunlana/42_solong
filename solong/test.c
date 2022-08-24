@@ -21,361 +21,349 @@
 #define HEIGHT 288
 
 
+// My struct to save lines
+
+typedef struct params_s
+{
+	int		i;
+	int		j;
+	int		move;
+}			params_t;
+
+// variables to create an image
 mlx_image_t* img;
 mlx_image_t* wall;
 mlx_image_t *collectible;
 mlx_image_t *escape;
+mlx_image_t *bg;
 
+
+// variables to create map data and work with the map (coordinates)
 int player_location_x;
 int player_location_y;
 char *arr[10000000];
 int movement_count = 0;
 // movement_count = 0;
+// int grabbed_eggs;
+
+int object_length = 42;
+
+int	wall_in_w_direction(int wall_index)
+{
+	if (img->instances[0].y + object_length - 4 >= wall->instances[wall_index].y &&			// predicting the future by x amount of px to detect a wall
+	img->instances[0].y - 4 <= wall->instances[wall_index].y + object_length &&
+	img->instances[0].x <= wall->instances[wall_index].x + object_length &&
+	img->instances[0].x + object_length >= wall->instances[wall_index].x
+	)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+int wall_in_s_direction(int wall_index)
+{
+	if (img->instances[0].y + object_length + 4 >= wall->instances[wall_index].y &&
+	img->instances[0].y + 4 <= wall->instances[wall_index].y + object_length &&
+	img->instances[0].x <= wall->instances[wall_index].x + object_length &&
+	img->instances[0].x + object_length >= wall->instances[wall_index].x
+	)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+int wall_in_a_direction(int wall_index)
+{
+	if (img->instances[0].y + object_length >= wall->instances[wall_index].y &&
+	img->instances[0].y <= wall->instances[wall_index].y + object_length &&
+	img->instances[0].x - 4 <= wall->instances[wall_index].x + object_length &&
+	img->instances[0].x + object_length - 4 >= wall->instances[wall_index].x
+	)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+int wall_in_d_direction(int wall_index)
+{
+	if (img->instances[0].y + object_length >= wall->instances[wall_index].y &&
+	img->instances[0].y <= wall->instances[wall_index].y + object_length &&
+	img->instances[0].x + 4 <= wall->instances[wall_index].x + object_length &&
+	img->instances[0].x + object_length + 4 >= wall->instances[wall_index].x
+	)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+int	picked_collectible(int egg_index)
+{
+	if (img->instances[0].y + object_length >= collectible->instances[egg_index].y &&
+	img->instances[0].y <= collectible->instances[egg_index].y + object_length &&
+	img->instances[0].x <= collectible->instances[egg_index].x + object_length &&
+	img->instances[0].x + object_length >= collectible->instances[egg_index].x
+	)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+int	player_can_exit_game(int egg_index)
+{
+	if (img->instances[0].y + object_length >= escape->instances[egg_index].y &&
+	img->instances[0].y <= escape->instances[egg_index].y + object_length &&
+	img->instances[0].x <= escape->instances[egg_index].x + object_length &&
+	img->instances[0].x + object_length >= escape->instances[egg_index].x
+	)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+int	picked_collectibles_count(int collectibles_count, int grabbed_eggs)
+{
+	int k = 0;
+	while (k  < collectibles_count)
+	{
+		if (collectible->instances[k].enabled == 0)
+			grabbed_eggs += 1;
+		k++;
+	}
+	return grabbed_eggs;
+}
+
+int	player_on_exit_tile(int egg_index)
+{
+	if (player_can_exit_game(egg_index))
+	{
+		// printf("Well done, you saved the dinosaurs!");
+		return 1;
+	}
+	return 0;
+}
+
+int	player_on_collectible_tile(int egg_index)
+{
+	if (picked_collectible(egg_index))
+	{
+		printf("collectible - (%d, %d)\n", collectible->instances[egg_index].x, collectible->instances[egg_index].y);
+		// printf("%d, %d", egg_index, i + j);
+
+		collectible->instances[egg_index].enabled = 0;
+		if (collectible->instances[egg_index].enabled == 0)
+		{
+			printf("Number of collectibles on screen: %d\n", collectible->count);
+			return 1 ;
+		}
+	}
+	return 0;
+}
 
 
-mlx_t* mlx;
+int	player_wins(int grabbed_eggs, int egg_index, int i, int j)
+{
+	if (grabbed_eggs == collectible->count)
+	{
+		if(arr[i][j] == 'E')
+			if (player_on_exit_tile(egg_index))
+				return 1; //break ;
+	}
+	return 0;
+}
 
-void	hook(void *param)
+int check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
+{
+	params_t params;
+
+	params.i = -1;
+	while (arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+				break ;
+			if (arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (arr[params.i][params.j] == '1')
+			{
+				if (wall_in_w_direction(wall_index))
+					return 0;
+				wall_index += 1;
+			}
+		}
+	}
+	return (params.move + 1);
+}
+
+
+int check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
+{
+	params_t params;
+
+	params.i = -1;
+	while (arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+				break ;
+			if (arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (arr[params.i][params.j] == '1')
+			{
+				if (wall_in_s_direction(wall_index))
+					return 0;
+				wall_index += 1;
+			}
+		}
+	}
+	return (params.move + 1);
+}
+
+int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
+{
+	params_t params;
+
+	params.i = -1;
+	while (arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+				break ;
+			if (arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (arr[params.i][params.j] == '1')
+			{
+				if (wall_in_a_direction(wall_index))
+					return 0;
+				wall_index += 1;
+			}
+		}
+	}
+	return (params.move + 1);
+}
+
+int check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
+{
+	params_t params;
+
+	params.i = -1;
+	while (arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+				break ;
+			if (arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (arr[params.i][params.j] == '1')
+			{
+				if (wall_in_d_direction(wall_index))
+					return 0;
+				wall_index += 1;
+			}
+		}
+	}
+	return (params.move + 1);
+}
+
+void	w_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
+{
+	int move;
+
+	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	move = check_for_w_move(grabbed_eggs,  egg_index, wall_index);
+	if (move && movement_count++)
+		img->instances[0].y -= 4;
+	// if (movement_count %48 == 0)
+		printf("moves: %d\n", movement_count /* / 48 */);
+}
+
+void	s_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
+{
+	int move;
+
+	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	move = check_for_s_move(grabbed_eggs,  egg_index, wall_index);
+	if (move && movement_count++)
+		img->instances[0].y += 4;
+	// if (movement_count %48 == 0)
+		printf("moves: %d\n", movement_count /* / 48 */);
+}
+
+void	a_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
+{
+	int move;
+
+	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	move = check_for_a_move(grabbed_eggs,  egg_index, wall_index);
+	if (move && movement_count++)
+		img->instances[0].x -= 4;
+	// if (movement_count %48 == 0)
+		printf("moves: %d\n", movement_count /* / 48 */);
+}
+
+void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
+{
+	int move;
+
+	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	move = check_for_d_move(grabbed_eggs,  egg_index, wall_index);
+	if (move && movement_count++)
+		img->instances[0].x += 4;
+	// if (movement_count %48 == 0)
+		printf("moves: %d\n", movement_count /* / 48 */);
+}
+
+void	hook(void *key)
 {
 	mlx_t	*mlx;
-	mlx = param;
+	mlx = key;
 
-	int move;
-	int object_length = 42;
+	// int object_length = 42;
 	int egg_index;
 	egg_index = 0;
+	int wall_index;
+	wall_index = 0;
+	int grabbed_eggs = 0;
 
-
-	if (mlx_is_key_down(param, MLX_KEY_ESCAPE))
-		mlx_close_window(param);
-	else if (mlx_is_key_down(param, MLX_KEY_UP) || mlx_is_key_down(param, MLX_KEY_W))
-	{
-		int i = 0;
-		int j;
-		int wall_index;
-		wall_index = 0;
-		move = 1;
-		int k = 0;
-		int grabbed_eggs = 0;
-
-		while (k < collectible->count)
-		{
-			if (collectible->instances[k].enabled == 0)
-				grabbed_eggs += 1;
-			k++;
-		}
-		while (arr[i] != 0)
-		{
-			j = 0;
-			while (arr[i][j] != '\0')
-			{
-				// reading walls correctly
-				if (grabbed_eggs == collectible->count)
-				{
-					if (arr[i][j] == 'E')
-					{
-						if (img->instances[0].y + object_length >= escape->instances[egg_index].y &&
-						img->instances[0].y <= escape->instances[egg_index].y + object_length &&
-						img->instances[0].x <= escape->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= escape->instances[egg_index].x
-						)
-						{
-							printf("Well done, you saved the dinosaurs!");
-							break ;
-						}
-					}
-				}
-				if (arr[i][j] == 'C')
-				{
-					if (img->instances[0].y + object_length >= collectible->instances[egg_index].y &&
-						img->instances[0].y <= collectible->instances[egg_index].y + object_length &&
-						img->instances[0].x <= collectible->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= collectible->instances[egg_index].x
-					)
-					{
-						printf("collectible - (%d, %d)\n", collectible->instances[egg_index].x, collectible->instances[egg_index].y);
-						printf("%d, %d", egg_index, i + j);
-
-						collectible->instances[egg_index].enabled = 0;
-						if (collectible->instances[egg_index].enabled == 0)
-						{
-							printf("Number of collectibles on screen: %d\n", collectible->count);
-							break ;
-						}
-					}
-					egg_index += 1;
-				}
-				if (arr[i][j] == '1')
-				{
-					if (img->instances[0].y + object_length - 3 >= wall->instances[wall_index].y &&
-						img->instances[0].y - 3 <= wall->instances[wall_index].y + object_length &&
-						img->instances[0].x <= wall->instances[wall_index].x + object_length &&
-						img->instances[0].x + object_length >= wall->instances[wall_index].x
-					)
-					{
-						move = 0;
-						break ;
-					}
-					wall_index += 1;
-				}
-				j++;
-			}
-			i++;
-		}
-		if (move)
-		{
-			img->instances[0].y -= 3;
-			movement_count += 1;
-		}
-		printf("player (A key) - (%i, %i)\n", img->instances[0].x , img->instances[0].y);
-		printf("Number of moves made: %d\n", movement_count);
-	}
-	else if (mlx_is_key_down(param, MLX_KEY_DOWN) || mlx_is_key_down(param, MLX_KEY_S))
-	{
-		int i = 0;
-		int j;
-		int wall_index;
-		wall_index = 0;
-		move = 1;
-		int k = 0;
-		int grabbed_eggs = 0;
-		while (k < collectible->count)
-		{
-			if (collectible->instances[k].enabled == 0)
-				grabbed_eggs+= 1;
-			k++;
-		}
-		while (arr[i] != 0)
-		{
-			j = 0;
-			while (arr[i][j] != '\0')
-			{
-				if (grabbed_eggs == collectible->count)
-				{
-					if (arr[i][j] == 'E')
-					{
-						if (img->instances[0].y + object_length >= escape->instances[egg_index].y &&
-						img->instances[0].y <= escape->instances[egg_index].y + object_length &&
-						img->instances[0].x <= escape->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= escape->instances[egg_index].x
-						)
-						{
-							printf("Well done, you saved the dinosaurs!");
-							break ;
-						}
-					}
-				}
-				if (arr[i][j] == 'C')
-				{
-					if (img->instances[0].y + object_length >= collectible->instances[egg_index].y &&
-						img->instances[0].y <= collectible->instances[egg_index].y + object_length &&
-						img->instances[0].x <= collectible->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= collectible->instances[egg_index].x
-					)
-					{
-						printf("collectible - (%d, %d)\n", collectible->instances[egg_index].x, collectible->instances[egg_index].y);
-						printf("%d, %d", egg_index, i + j);
-
-						collectible->instances[egg_index].enabled = 0;
-						if (collectible->instances[egg_index].enabled == 0)
-						{
-							printf("Number of collectibles on screen: %d\n", collectible->count);
-							break ;
-						}
-					}
-					egg_index += 1;
-				}
-
-				if (arr[i][j] == '1')
-				{
-					if (img->instances[0].y + object_length + 3 >= wall->instances[wall_index].y &&  // predicting the future by 1px to detect a wall
-						img->instances[0].y + 3 <= wall->instances[wall_index].y + object_length &&
-						img->instances[0].x <= wall->instances[wall_index].x + object_length &&
-						img->instances[0].x + object_length >= wall->instances[wall_index].x
-					)     
-					{
-						move = 0;
-						break ;
-					}
-					wall_index += 1;
-				}
-				j++;
-			}
-			i++;
-		}
-		if (move)
-		{
-			img->instances[0].y += 3;
-			movement_count += 1;
-		}
-		printf("player (S key) - (%i, %i)\n", img->instances[0].x , img->instances[0].y);
-		printf("Number of moves made: %d\n", movement_count);
-	}
-	else if (mlx_is_key_down(param, MLX_KEY_LEFT) || mlx_is_key_down(param, MLX_KEY_A))
-	{
-		int i = 0;
-		int j;
-		int wall_index;
-		wall_index = 0;
-		move = 1;
-		int k = 0;
-		int grabbed_eggs = 0;
-
-		while (k < collectible->count)
-		{
-			printf("collectible state - %d\n", collectible->instances[k].enabled);
-			if (collectible->instances[k].enabled == 0)
-				grabbed_eggs+= 1;
-			k++;
-		}
-		printf("Number of eggs collected - %d\n", grabbed_eggs);
-		while (arr[i] != 0)
-		{
-			j = 0;
-			while (arr[i][j] != '\0')
-			{
-				if (grabbed_eggs == collectible->count)
-				{
-					// printf("*********grabbed all eggs\n");
-					if (arr[i][j] == 'E')
-					{
-						if (img->instances[0].y + object_length >= escape->instances[egg_index].y &&
-						img->instances[0].y <= escape->instances[egg_index].y + object_length &&
-						img->instances[0].x <= escape->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= escape->instances[egg_index].x
-						)
-						{
-							printf("Well done, you saved the dinosaurs!");
-							break ;
-						}
-					}
-				}
-				if (arr[i][j] == 'C')
-				{
-					if (img->instances[0].y + object_length >= collectible->instances[egg_index].y &&
-						img->instances[0].y <= collectible->instances[egg_index].y + object_length &&
-						img->instances[0].x <= collectible->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= collectible->instances[egg_index].x
-					)
-					{
-						printf("collectible - (%d, %d)\n", collectible->instances[egg_index].x, collectible->instances[egg_index].y);
-						printf("%d, %d", egg_index, i + j);
-						collectible->instances[egg_index].enabled = 0;
-						if (collectible->instances[egg_index].enabled == 0)
-						{
-							printf("Number of collectibles on screen: %d\n", collectible->count);
-							break ;
-						}
-					}
-					egg_index += 1;
-				}
-				if (arr[i][j] == '1')
-				{
-					if (img->instances[0].y + object_length >= wall->instances[wall_index].y &&
-						img->instances[0].y <= wall->instances[wall_index].y + object_length &&
-						img->instances[0].x - 3 <= wall->instances[wall_index].x + object_length &&
-						img->instances[0].x + object_length - 3 >= wall->instances[wall_index].x
-					)     
-					{
-						move = 0;
-						break ;
-					}
-					wall_index += 1;
-				}
-				j++;
-			}
-			i++;
-		}
-		if (move)
-		{
-			img->instances[0].x -= 3;
-			movement_count += 1;
-		}
-		printf("player (A key) - (%i, %i)\n", img->instances[0].x , img->instances[0].y);
-		printf("Number of moves made: %d\n", movement_count);
-	}
-	else if (mlx_is_key_down(param, MLX_KEY_RIGHT) || mlx_is_key_down(param, MLX_KEY_D))
-	{
-		int i = 0;
-		int j;
-		int wall_index;
-		wall_index = 0;
-		move = 1;
-		int k = 0;
-		int grabbed_eggs = 0;
-
-		while (k < collectible->count)
-		{
-			printf("collectible state - %d\n", collectible->instances[k].enabled);
-			if (collectible->instances[k].enabled == 0)
-				grabbed_eggs+= 1;
-			k++;
-		}
-		printf("Number of eggs collected - %d\n", grabbed_eggs);
-		while (arr[i] != 0)
-		{
-			j = 0;
-			while (arr[i][j] != '\0')
-			{
-				if (grabbed_eggs == collectible->count)
-				{
-					if (arr[i][j] == 'E')
-					{
-						if (img->instances[0].y + object_length >= escape->instances[egg_index].y &&
-						img->instances[0].y <= escape->instances[egg_index].y + object_length &&
-						img->instances[0].x <= escape->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= escape->instances[egg_index].x
-						)
-						{
-							printf("Well done, you saved the dinosaurs!");
-							break ;
-						}
-					}
-				}
-				if (arr[i][j] == 'C')
-				{
-					if (img->instances[0].y + object_length >= collectible->instances[egg_index].y &&
-						img->instances[0].y <= collectible->instances[egg_index].y + object_length &&
-						img->instances[0].x <= collectible->instances[egg_index].x + object_length &&
-						img->instances[0].x + object_length >= collectible->instances[egg_index].x
-					)
-					{
-						printf("collectible - (%d, %d)\n", collectible->instances[egg_index].x, collectible->instances[egg_index].y);
-						printf("%d, %d", egg_index, i + j);
-						collectible->instances[egg_index].enabled = 0;
-						if (collectible->instances[egg_index].enabled == 0)
-						{
-							printf("Number of collectibles on screen: %d\n", collectible->count);
-							break ;
-						}
-					}
-					egg_index += 1;
-				}
-				if (arr[i][j] == '1')
-				{
-					if (img->instances[0].y + object_length >= wall->instances[wall_index].y &&
-						img->instances[0].y <= wall->instances[wall_index].y + object_length &&
-						img->instances[0].x + 3 <= wall->instances[wall_index].x + object_length &&
-						img->instances[0].x + object_length + 3 >= wall->instances[wall_index].x
-					)     
-					{
-						move = 0;
-						break ;
-					}
-					wall_index += 1;
-				}
-				j++;
-			}
-			i++;
-		}
-		if (move)
-		{
-			img->instances[0].x += 3;
-			movement_count += 1;
-		}
-		printf("player (D key) - (%i, %i)\n", img->instances[0].x , img->instances[0].y);
-		printf("Number of moves made: %d\n", movement_count);
-	}
+	if (mlx_is_key_down(key, MLX_KEY_ESCAPE))
+		mlx_close_window(key);
+	else if (mlx_is_key_down(key, MLX_KEY_UP) || mlx_is_key_down(key, MLX_KEY_W))
+		w_key_pressed(grabbed_eggs,  egg_index, wall_index);
+	else if (mlx_is_key_down(key, MLX_KEY_DOWN) || mlx_is_key_down(key, MLX_KEY_S))
+		s_key_pressed(grabbed_eggs,  egg_index, wall_index);
+	else if (mlx_is_key_down(key, MLX_KEY_LEFT) || mlx_is_key_down(key, MLX_KEY_A))
+		a_key_pressed(grabbed_eggs,  egg_index, wall_index);
+	else if (mlx_is_key_down(key, MLX_KEY_RIGHT) || mlx_is_key_down(key, MLX_KEY_D))
+		d_key_pressed(grabbed_eggs,  egg_index, wall_index);
 }
 
 static void error(void)
@@ -387,8 +375,8 @@ static void error(void)
 int32_t	main(void)
 {
 	// Start mlx
-	// mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
-	mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
+	mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
+	// mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
 	if (!mlx)
         error();
 
@@ -405,7 +393,7 @@ int32_t	main(void)
 		error();
 
 	// Convert texture to a displayable image
-	mlx_image_t* bg = mlx_texture_to_image(mlx, bg_texture);
+	/* mlx_image_t* */ bg = mlx_texture_to_image(mlx, bg_texture);
 	img = mlx_texture_to_image(mlx, texture);
 	/*mlx_image_t*/ wall = mlx_texture_to_image(mlx, wall_texture);
 	/* mlx_image_t */ collectible = mlx_texture_to_image(mlx, collectible_texture);
@@ -439,11 +427,9 @@ int32_t	main(void)
 	int x;
 	int y = 0;
 	// int i = 0;
-	// char *line = "1111111111\n1000000001\n1000000001\n1000000001\n1111111111";
+	int j;
 	int fd = open("./maps/map01.ber", O_RDONLY);
-	// char *line = get_next_line(fd);
-	// char *line2 = get_next_line(fd);
-	int check_line = 1;
+	// int check_line = 1;
 	int line_count = 0;
 	int player_count = 0;
 	int escape_count = 0;
@@ -451,15 +437,15 @@ int32_t	main(void)
 	// int player_location_x;
 	// int player_location_y;
 	// char *arr[1000000];
-	while (check_line)
+	while (1)
 	{
 		char *line = get_next_line(fd);
 		if (!line)
 		{
-			check_line = 0;
+			// check_line = 0;
 			break ;
 		}
-		int j = 0;
+		j = 0;
 		x = 0;
 		arr[y] = line;
 		while (line[j] != '\0')
@@ -478,11 +464,6 @@ int32_t	main(void)
 				player_location_x = 48 * x;
 				player_location_y = 48 * y;
 				player_count++;
-				if (player_count > 1)
-				{
-					printf("Duplicate: %c, %d\n", line[j], j);
-					exit(1);
-				}
 			}
 			if (line[j] == 'C')
 			{
@@ -493,11 +474,6 @@ int32_t	main(void)
 			{
 				mlx_image_to_window(mlx, escape, 48 * x , 48 * y);
 				escape_count++;
-				if (escape_count > 1)
-				{
-					printf("Duplicate: %c, %d\n", line[j], j);
-					exit(1);
-				}
 			}
 			x++;
 			j++;
@@ -505,9 +481,9 @@ int32_t	main(void)
 		line_count += 1;
 		y++;
 	}
-	if (collectible_count < 1)
+	if (collectible_count < 1 || player_count != 1 || escape_count != 1)
 	{
-		printf("No collectibles on map");
+		printf("|only one player allowed| -OR- |only one exit allowed|  -OR- |No collectibles on map|");
 		exit(0);
 	}
 
