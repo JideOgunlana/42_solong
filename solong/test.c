@@ -27,15 +27,44 @@ typedef struct params_s
 {
 	int		i;
 	int		j;
-	int		move;
 }			params_t;
 
+
+// variables to create textures
+typedef struct texture_s
+{
+	mlx_texture_t* wall_texture;
+	mlx_texture_t* texture;
+	mlx_texture_t* bg_texture; 
+	mlx_texture_t* collectible_texture;
+	mlx_texture_t* escape_texture;
+}				texture_t;
+
 // variables to create an image
-mlx_image_t* img;
-mlx_image_t* wall;
-mlx_image_t *collectible;
-mlx_image_t *escape;
-mlx_image_t *bg;
+typedef struct game_images_s
+{
+	mlx_image_t	*img;
+	mlx_image_t	*wall;
+	mlx_image_t	*collectible;
+	mlx_image_t	*escape;
+	mlx_image_t	*bg;
+}				game_image_t;
+
+game_image_t *images;
+
+// variables to parse the map
+typedef struct map_parsing_s
+{
+	int		x;
+	int		y;
+	int		j;
+	int		fd;
+	int		player_count;
+	int		escape_count;
+	int		collectible_count;
+	char	*line;
+
+}			map_parsing_t;
 
 
 // variables to create map data and work with the map (coordinates)
@@ -43,17 +72,20 @@ int player_location_x;
 int player_location_y;
 char *arr[10000000];
 int movement_count = 0;
-// movement_count = 0;
-// int grabbed_eggs;
+int line_count = 0;
+int map_width1 = 0;
+int map_width2 = 0;
+int last_line;
+
 
 int object_length = 42;
 
 int	wall_in_w_direction(int wall_index)
 {
-	if (img->instances[0].y + object_length - 4 >= wall->instances[wall_index].y &&			// predicting the future by x amount of px to detect a wall
-	img->instances[0].y - 4 <= wall->instances[wall_index].y + object_length &&
-	img->instances[0].x <= wall->instances[wall_index].x + object_length &&
-	img->instances[0].x + object_length >= wall->instances[wall_index].x
+	if (images->img->instances[0].y + object_length - 4 >= images->wall->instances[wall_index].y &&			// predicting the future by x amount of px to detect a wall
+	images->img->instances[0].y - 4 <= images->wall->instances[wall_index].y + object_length &&
+	images->img->instances[0].x <= images->wall->instances[wall_index].x + object_length &&
+	images->img->instances[0].x + object_length >= images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -63,10 +95,10 @@ int	wall_in_w_direction(int wall_index)
 
 int wall_in_s_direction(int wall_index)
 {
-	if (img->instances[0].y + object_length + 4 >= wall->instances[wall_index].y &&
-	img->instances[0].y + 4 <= wall->instances[wall_index].y + object_length &&
-	img->instances[0].x <= wall->instances[wall_index].x + object_length &&
-	img->instances[0].x + object_length >= wall->instances[wall_index].x
+	if (images->img->instances[0].y + object_length + 4 >= images->wall->instances[wall_index].y &&
+	images->img->instances[0].y + 4 <= images->wall->instances[wall_index].y + object_length &&
+	images->img->instances[0].x <= images->wall->instances[wall_index].x + object_length &&
+	images->img->instances[0].x + object_length >= images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -76,10 +108,10 @@ int wall_in_s_direction(int wall_index)
 
 int wall_in_a_direction(int wall_index)
 {
-	if (img->instances[0].y + object_length >= wall->instances[wall_index].y &&
-	img->instances[0].y <= wall->instances[wall_index].y + object_length &&
-	img->instances[0].x - 4 <= wall->instances[wall_index].x + object_length &&
-	img->instances[0].x + object_length - 4 >= wall->instances[wall_index].x
+	if (images->img->instances[0].y + object_length >= images->wall->instances[wall_index].y &&
+	images->img->instances[0].y <= images->wall->instances[wall_index].y + object_length &&
+	images->img->instances[0].x - 4 <= images->wall->instances[wall_index].x + object_length &&
+	images->img->instances[0].x + object_length - 4 >= images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -89,10 +121,10 @@ int wall_in_a_direction(int wall_index)
 
 int wall_in_d_direction(int wall_index)
 {
-	if (img->instances[0].y + object_length >= wall->instances[wall_index].y &&
-	img->instances[0].y <= wall->instances[wall_index].y + object_length &&
-	img->instances[0].x + 4 <= wall->instances[wall_index].x + object_length &&
-	img->instances[0].x + object_length + 4 >= wall->instances[wall_index].x
+	if (images->img->instances[0].y + object_length >= images->wall->instances[wall_index].y &&
+	images->img->instances[0].y <= images->wall->instances[wall_index].y + object_length &&
+	images->img->instances[0].x + 4 <= images->wall->instances[wall_index].x + object_length &&
+	images->img->instances[0].x + object_length + 4 >= images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -102,10 +134,10 @@ int wall_in_d_direction(int wall_index)
 
 int	picked_collectible(int egg_index)
 {
-	if (img->instances[0].y + object_length >= collectible->instances[egg_index].y &&
-	img->instances[0].y <= collectible->instances[egg_index].y + object_length &&
-	img->instances[0].x <= collectible->instances[egg_index].x + object_length &&
-	img->instances[0].x + object_length >= collectible->instances[egg_index].x
+	if (images->img->instances[0].y + object_length >= images->collectible->instances[egg_index].y &&
+	images->img->instances[0].y <= images->collectible->instances[egg_index].y + object_length &&
+	images->img->instances[0].x <= images->collectible->instances[egg_index].x + object_length &&
+	images->img->instances[0].x + object_length >= images->collectible->instances[egg_index].x
 	)
 	{
 		return (1);
@@ -115,10 +147,10 @@ int	picked_collectible(int egg_index)
 
 int	player_can_exit_game(int egg_index)
 {
-	if (img->instances[0].y + object_length >= escape->instances[egg_index].y &&
-	img->instances[0].y <= escape->instances[egg_index].y + object_length &&
-	img->instances[0].x <= escape->instances[egg_index].x + object_length &&
-	img->instances[0].x + object_length >= escape->instances[egg_index].x
+	if (images->img->instances[0].y + object_length >= images->escape->instances[egg_index].y &&
+	images->img->instances[0].y <= images->escape->instances[egg_index].y + object_length &&
+	images->img->instances[0].x <= images->escape->instances[egg_index].x + object_length &&
+	images->img->instances[0].x + object_length >= images->escape->instances[egg_index].x
 	)
 	{
 		return (1);
@@ -131,7 +163,7 @@ int	picked_collectibles_count(int collectibles_count, int grabbed_eggs)
 	int k = 0;
 	while (k  < collectibles_count)
 	{
-		if (collectible->instances[k].enabled == 0)
+		if (images->collectible->instances[k].enabled == 0)
 			grabbed_eggs += 1;
 		k++;
 	}
@@ -152,13 +184,13 @@ int	player_on_collectible_tile(int egg_index)
 {
 	if (picked_collectible(egg_index))
 	{
-		printf("collectible - (%d, %d)\n", collectible->instances[egg_index].x, collectible->instances[egg_index].y);
+		printf("collectible - (%d, %d)\n", images->collectible->instances[egg_index].x, images->collectible->instances[egg_index].y);
 		// printf("%d, %d", egg_index, i + j);
 
-		collectible->instances[egg_index].enabled = 0;
-		if (collectible->instances[egg_index].enabled == 0)
+		images->collectible->instances[egg_index].enabled = 0;
+		if (images->collectible->instances[egg_index].enabled == 0)
 		{
-			printf("Number of collectibles on screen: %d\n", collectible->count);
+			printf("Number of collectibles on screen: %d\n", images->collectible->count);
 			return 1 ;
 		}
 	}
@@ -168,7 +200,7 @@ int	player_on_collectible_tile(int egg_index)
 
 int	player_wins(int grabbed_eggs, int egg_index, int i, int j)
 {
-	if (grabbed_eggs == collectible->count)
+	if (grabbed_eggs == images->collectible->count)
 	{
 		if(arr[i][j] == 'E')
 			if (player_on_exit_tile(egg_index))
@@ -203,7 +235,7 @@ int check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 			}
 		}
 	}
-	return (params.move + 1);
+	return (1);
 }
 
 
@@ -233,7 +265,7 @@ int check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 			}
 		}
 	}
-	return (params.move + 1);
+	return (1);
 }
 
 int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
@@ -262,7 +294,7 @@ int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 			}
 		}
 	}
-	return (params.move + 1);
+	return (1);
 }
 
 int check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
@@ -291,17 +323,17 @@ int check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
 			}
 		}
 	}
-	return (params.move + 1);
+	return (1);
 }
 
 void	w_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
-	move = check_for_w_move(grabbed_eggs,  egg_index, wall_index);
+	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
+	move = check_for_w_move(grabbed_eggs, egg_index, wall_index);
 	if (move && movement_count++)
-		img->instances[0].y -= 4;
+		images->img->instances[0].y -= 4;
 	// if (movement_count %48 == 0)
 		printf("moves: %d\n", movement_count /* / 48 */);
 }
@@ -310,10 +342,10 @@ void	s_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
 	move = check_for_s_move(grabbed_eggs,  egg_index, wall_index);
 	if (move && movement_count++)
-		img->instances[0].y += 4;
+		images->img->instances[0].y += 4;
 	// if (movement_count %48 == 0)
 		printf("moves: %d\n", movement_count /* / 48 */);
 }
@@ -322,10 +354,10 @@ void	a_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
 	move = check_for_a_move(grabbed_eggs,  egg_index, wall_index);
 	if (move && movement_count++)
-		img->instances[0].x -= 4;
+		images->img->instances[0].x -= 4;
 	// if (movement_count %48 == 0)
 		printf("moves: %d\n", movement_count /* / 48 */);
 }
@@ -334,10 +366,10 @@ void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
 	move = check_for_d_move(grabbed_eggs,  egg_index, wall_index);
 	if (move && movement_count++)
-		img->instances[0].x += 4;
+		images->img->instances[0].x += 4;
 	// if (movement_count %48 == 0)
 		printf("moves: %d\n", movement_count /* / 48 */);
 }
@@ -345,14 +377,14 @@ void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 void	hook(void *key)
 {
 	mlx_t	*mlx;
-	mlx = key;
+	int		egg_index;
+	int		wall_index;
+	int		grabbed_eggs;
 
-	// int object_length = 42;
-	int egg_index;
+	mlx = key;
 	egg_index = 0;
-	int wall_index;
 	wall_index = 0;
-	int grabbed_eggs = 0;
+	grabbed_eggs = 0;
 
 	if (mlx_is_key_down(key, MLX_KEY_ESCAPE))
 		mlx_close_window(key);
@@ -372,125 +404,96 @@ static void error(void)
 	exit(EXIT_FAILURE);
 }
 
-int32_t	main(void)
+
+
+void	create_textures(texture_t *val)
 {
-	// Start mlx
-	mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
-	// mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
-	if (!mlx)
-        error();
+	val->wall_texture =  mlx_load_png("./img/wall1.png");
+	val->texture = mlx_load_png("./img/dion.png");
+	val->bg_texture = mlx_load_png("./img/map.png");
+	val->collectible_texture = mlx_load_png("./img/egg1.png");
+	val->escape_texture = mlx_load_png("./img/escape.png");
 
-	// Try to load the file
-	mlx_texture_t* wall_texture = mlx_load_png("./img/wall1.png");
-	mlx_texture_t* texture = mlx_load_png("./img/dion.png");
-	mlx_texture_t* bg_texture = mlx_load_png("./img/map.png");
-	mlx_texture_t* collectible_texture = mlx_load_png("./img/egg1.png");
-	mlx_texture_t* escape_texture = mlx_load_png("./img/escape.png");
-
-
-
-	if (!texture)
+	if (!val->wall_texture || !val->texture || !val->bg_texture || !val->collectible_texture || !val->escape_texture)
 		error();
+}
 
-	// Convert texture to a displayable image
-	/* mlx_image_t* */ bg = mlx_texture_to_image(mlx, bg_texture);
-	img = mlx_texture_to_image(mlx, texture);
-	/*mlx_image_t*/ wall = mlx_texture_to_image(mlx, wall_texture);
-	/* mlx_image_t */ collectible = mlx_texture_to_image(mlx, collectible_texture);
-	/* mlx_image_t */ escape = mlx_texture_to_image(mlx, escape_texture);
+void	create_images(game_image_t* images, mlx_t *mlx, texture_t *val)
+{
+	images->bg = mlx_texture_to_image(mlx, val->bg_texture);
+	images->img = mlx_texture_to_image(mlx, val->texture);
+	images->wall = mlx_texture_to_image(mlx, val->wall_texture);
+	images->collectible = mlx_texture_to_image(mlx, val->collectible_texture);
+	images->escape = mlx_texture_to_image(mlx, val->escape_texture);
 
-
-
-
-	if (!img)
-        error();
-
-	// Display the image
-
-	if (mlx_image_to_window(mlx, bg, 0, 0) < 0)
+	if (!images->bg || !images->img || !images->wall || !images->collectible || !images->escape)
 		error();
+}
 
-	// mlx_image_to_window(mlx, wall, 0, 0);
-	// mlx_image_to_window(mlx, wall, 48, 0);
-	// mlx_image_to_window(mlx, wall, 96, 0);
-	// mlx_image_to_window(mlx, wall, 144, 0);
-	// mlx_image_to_window(mlx, wall, 192, 0);
-	// mlx_image_to_window(mlx, wall, 0, 48);
-	// mlx_image_to_window(mlx, wall, 0, 96);
-	// mlx_image_to_window(mlx, wall, 0,144);
-	// mlx_image_to_window(mlx, wall, 0,192);
-	// mlx_image_to_window(mlx, wall, 48, 192);
-	// mlx_image_to_window(mlx, wall, 96, 192);
-	// mlx_image_to_window(mlx, wall, 144, 192);
+void	check_line(mlx_t *mlx, map_parsing_t *p_map)
+{
+	while (p_map->line[p_map->j] != '\0')
+	{
+		if (p_map->line[p_map->j] != '1' && p_map->line[p_map->j] != 'P' && p_map->line[p_map->j] != 'E' && p_map->line[p_map->j] != 'C' && p_map->line[p_map->j] != '0' && p_map->line[p_map->j] != '\n')
+		{
+			printf("%c, %d\n", p_map->line[p_map->j], p_map->j);
+			exit(1);
+		}
+		if (p_map->line[p_map->j] == '1')
+			mlx_image_to_window(mlx, images->wall, 48 * p_map->x, 48 * p_map->y);
+		if (p_map->line[p_map->j] == 'P')
+		{
+			player_location_x = 48 * p_map->x;
+			player_location_y = 48 * p_map->y;
+			p_map->player_count++;
+		}
+		if (p_map->line[p_map->j] == 'C')
+		{
+			mlx_image_to_window(mlx, images->collectible, 48 * p_map->x, 48 * p_map->y);
+			p_map->collectible_count += 1;
+		}
+		if (p_map->line[p_map->j] == 'E')
+		{
+			mlx_image_to_window(mlx, images->escape, 48 * p_map->x , 48 * p_map->y);
+			p_map->escape_count++;
+		}
+		p_map->x++;
+		p_map->j++;
+	}
+}
 
-	// test code to render map to screen
-	int x;
-	int y = 0;
-	// int i = 0;
-	int j;
-	int fd = open("./maps/map01.ber", O_RDONLY);
-	// int check_line = 1;
-	int line_count = 0;
-	int player_count = 0;
-	int escape_count = 0;
-	int collectible_count = 0;
-	// int player_location_x;
-	// int player_location_y;
-	// char *arr[1000000];
+void	parse_map(mlx_t *mlx)
+{
+	map_parsing_t	map;
+	map_parsing_t	*p_map;
+
+	p_map = &map;
+	map.fd = open("./maps/map01.ber", O_RDONLY);
 	while (1)
 	{
-		char *line = get_next_line(fd);
-		if (!line)
-		{
-			// check_line = 0;
+		map.j = 0;
+		map.x = 0;
+		map.line = get_next_line(map.fd);
+		if (!map.line)
 			break ;
-		}
-		j = 0;
-		x = 0;
-		arr[y] = line;
-		while (line[j] != '\0')
-		{
-			// printf("%c", line[j]);
-			if (line[j] != '1' && line[j] != 'P' && line[j] != 'E' && line[j] != 'C' && line[j] != '0' && line[j] != '\n')
-			{
-				printf("%c, %d\n", line[j], j);
-				// perror("Error\n");
-				exit(1);
-			}
-			if (line[j] == '1')
-				mlx_image_to_window(mlx, wall, 48 * x, 48 * y);
-			if (line[j] == 'P')
-			{
-				player_location_x = 48 * x;
-				player_location_y = 48 * y;
-				player_count++;
-			}
-			if (line[j] == 'C')
-			{
-				mlx_image_to_window(mlx, collectible, 48 * x, 48 * y);
-				collectible_count += 1;
-			}
-			if (line[j] == 'E')
-			{
-				mlx_image_to_window(mlx, escape, 48 * x , 48 * y);
-				escape_count++;
-			}
-			x++;
-			j++;
-		}
+		arr[map.y] = map.line;
+		check_line(mlx, p_map);
+
 		line_count += 1;
-		y++;
+		map.y++;
 	}
-	if (collectible_count < 1 || player_count != 1 || escape_count != 1)
+	if (map.collectible_count < 1 || map.player_count != 1 || map.escape_count != 1)
 	{
 		printf("|only one player allowed| -OR- |only one exit allowed|  -OR- |No collectibles on map|");
 		exit(0);
 	}
+}
 
-	// checking validity of map
-	int i = 0;
-	int map_width1 = 0;
-	int map_width2 = 0;
+void	check_map_dimensions()
+{
+	int i;
+
+	i = 0;
 	while (arr[i] != 0)
 	{
 		int j = 0;
@@ -513,16 +516,13 @@ int32_t	main(void)
 		}
 		i++;
 	}
-	if (line_count == map_width1 + 1)
-	{
-		printf("Map is a square, it should be rectangular\n");
-		exit(1);
-	}
+}
 
 	// checking map has walls on all sides
-	//top
-	int last_line = line_count - 1;
-	i = 0;
+
+void	is_top_wall_valid()
+{
+	int i = 0;
 	while (arr[0][i] != '\0' && arr[0][i] != '\n')
 	{
 		if (arr[0][i] != '1')
@@ -532,9 +532,15 @@ int32_t	main(void)
 		}
 		i++;
 	}
+}
 
-	// bottom
+void	is_bottom_wall_valid()
+{
+	int i;
+
 	i = 0;
+	last_line = line_count - 1;
+
 	while (arr[last_line][i] != '\0' && arr[last_line][i] != '\n')
 	{
 		if (arr[last_line][i] != '1')
@@ -544,8 +550,12 @@ int32_t	main(void)
 		}
 		i++;
 	}
+}
 
-	// left
+void	is_left_wall_valid()
+{
+	int i;
+
 	i = 0;
 	while (i < line_count)
 	{
@@ -556,8 +566,12 @@ int32_t	main(void)
 		}
 		i++;
 	}
+}
 
-	// right
+void	is_right_wall_valid()
+{
+	int i;
+
 	i = 0;
 	while (i < line_count)
 	{
@@ -568,71 +582,41 @@ int32_t	main(void)
 		}
 		i++;
 	}
-
-	printf("number of rows - %d\n", line_count);
-
-	printf("Number of collectibles on screen: %d\n", collectible->count);
-
-
-	mlx_loop_hook(mlx, &hook, mlx);
-
-	mlx_image_to_window(mlx, img, player_location_x, player_location_y);
-
-
-	mlx_loop(mlx);
-
-	// Optional, terminate will clean up any left overs, this is just to demonstrate.
-	mlx_delete_image(mlx, img);
-	mlx_delete_texture(texture);
-	mlx_terminate(mlx);
-
-	return (EXIT_SUCCESS);
 }
 
+void	check_walls()
+{
+	is_top_wall_valid();
+	is_bottom_wall_valid();
+	is_left_wall_valid();
+	is_right_wall_valid();
+}
 
+int32_t	main(void)
+{
+	mlx_t* mlx;
+	texture_t *val;
 
+	mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
+	val = (texture_t*) malloc(sizeof(texture_t));
+	images = (game_image_t*) malloc(sizeof(game_image_t));
+	if (!images || !val || !mlx)
+		error();
+	create_textures(val);
+	create_images(images, mlx, val);
 
-
-
-// #include "MLX42/include/MLX42/MLX42.h"
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <unistd.h>
-// #include <memory.h>
-// #define WIDTH 256
-// #define HEIGHT 256
-
-// mlx_image_t	*g_img;
-
-// void	hook(void *param)
-// {
-// 	mlx_t	*mlx;
-
-// 	mlx = param;
-// 	if (mlx_is_key_down(param, MLX_KEY_ESCAPE))
-// 		mlx_close_window(param);
-// 	if (mlx_is_key_down(param, MLX_KEY_UP))
-// 		g_img->instances[0].y -= 5;
-// 	if (mlx_is_key_down(param, MLX_KEY_DOWN))
-// 		g_img->instances[0].y += 5;
-// 	if (mlx_is_key_down(param, MLX_KEY_LEFT))
-// 		g_img->instances[0].x -= 5;
-// 	if (mlx_is_key_down(param, MLX_KEY_RIGHT))
-// 		g_img->instances[0].x += 5;
-// }
-
-// int32_t	main(void)
-// {
-// 	mlx_t	*mlx;
-
-// 	mlx = mlx_init(WIDTH, HEIGHT, "MLX42", true);
-// 	if (!mlx)
-// 		exit(EXIT_FAILURE);
-// 	g_img = mlx_new_image(mlx, 128, 128);
-// 	memset(g_img->pixels, 255, g_img->width * g_img->height * sizeof(int));
-// 	mlx_image_to_window(mlx, g_img, 0, 0);
-// 	mlx_loop_hook(mlx, &hook, mlx);
-// 	mlx_loop(mlx);
-// 	mlx_terminate(mlx);
-// 	return (EXIT_SUCCESS);
-// }
+	if (mlx_image_to_window(mlx, images->bg, 0, 0) < 0)
+		error();
+	parse_map(mlx);
+	check_map_dimensions();
+	if (line_count == map_width1 + 1)
+	{
+		printf("Map is a square, it should be rectangular\n");
+		exit(1);
+	}
+	check_walls();
+	mlx_loop_hook(mlx, &hook, mlx);
+	mlx_image_to_window(mlx, images->img, player_location_x, player_location_y);
+	mlx_loop(mlx);
+	return (EXIT_SUCCESS);
+}
