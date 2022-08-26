@@ -16,6 +16,7 @@
 #include "MLX42/include/MLX42/MLX42.h"
 
 #include "gnl/get_next_line.h"
+#include "../libft/libft.h"
 
 #define WIDTH 960
 #define HEIGHT 288
@@ -27,6 +28,7 @@ typedef struct params_s
 {
 	int		i;
 	int		j;
+	int		valid_file;
 }			params_t;
 
 
@@ -62,7 +64,6 @@ typedef struct map_parsing_s
 	int		escape_count;
 	int		collectible_count;
 	char	*line;
-
 }			map_parsing_t;
 
 
@@ -341,7 +342,10 @@ void	w_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].y -= 4;
 	// if (g_m_data.movement_count %48 == 0)
-		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		ft_putstr_fd("moves: ", STDOUT_FILENO);
+		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 }
 
 void	s_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
@@ -353,7 +357,10 @@ void	s_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].y += 4;
 	// if (g_m_data.movement_count %48 == 0)
-		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		ft_putstr_fd("moves: ", STDOUT_FILENO);
+		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 }
 
 void	a_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
@@ -365,7 +372,10 @@ void	a_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].x -= 4;
 	// if (g_m_data.movement_count %48 == 0)
-		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		ft_putstr_fd("moves: ", STDOUT_FILENO);
+		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 }
 
 void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
@@ -377,7 +387,10 @@ void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].x += 4;
 	// if (g_m_data.movement_count %48 == 0)
-		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
+		ft_putstr_fd("moves: ", STDOUT_FILENO);
+		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 }
 
 void	hook(void *key)
@@ -404,11 +417,6 @@ void	hook(void *key)
 		d_key_pressed(grabbed_eggs,  egg_index, wall_index);
 }
 
-static void error(void)
-{
-	puts(mlx_strerror(mlx_errno));
-	exit(EXIT_FAILURE);
-}
 
 void	create_textures(texture_t *val)
 {
@@ -418,8 +426,13 @@ void	create_textures(texture_t *val)
 	val->collectible_texture = mlx_load_png("./img/egg1.png");
 	val->escape_texture = mlx_load_png("./img/escape.png");
 
-	if (!val->wall_texture || !val->player_texture || !val->bg_texture || !val->collectible_texture || !val->escape_texture)
-		error();
+	if (!val->wall_texture || !val->player_texture
+		|| !val->bg_texture || !val->collectible_texture 
+		|| !val->escape_texture)
+	{
+		ft_putstr_fd("Error\nFailed to load\n", STDOUT_FILENO);
+		exit(EXIT_FAILURE);
+	}
 }
 
 void	create_g_images(game_image_t* g_images, mlx_t *mlx, texture_t *val)
@@ -430,8 +443,13 @@ void	create_g_images(game_image_t* g_images, mlx_t *mlx, texture_t *val)
 	g_images->collectible = mlx_texture_to_image(mlx, val->collectible_texture);
 	g_images->escape = mlx_texture_to_image(mlx, val->escape_texture);
 
-	if (!g_images->bg || !g_images->player || !g_images->wall || !g_images->collectible || !g_images->escape)
-		error();
+	if (!g_images->bg || !g_images->player
+		|| !g_images->wall || !g_images->collectible
+		|| !g_images->escape)
+	{
+		ft_putstr_fd("Error\nFailed to load\n", STDOUT_FILENO);
+		exit(EXIT_FAILURE);
+	}
 }
 
 void	get_player_location(map_parsing_t *p_map)
@@ -490,8 +508,8 @@ void	parse_game_map(mlx_t *mlx)
 	}
 	if (map.collectible_count < 1 || map.player_count != 1 || map.escape_count != 1)
 	{
-		printf("\n***PLEASE NOTE*** possible issues with map:\n\t1.Not more than one player allowed\n");
-		printf("\t2.Not more than one exit allowed\n\t3.No collectibles found on map\n\t4.Map doesn't exist\n");
+		ft_putstr_fd("Error\n***PLEASE NOTE*** possible issues with map:\n\t1.Not more than one player allowed\n", STDOUT_FILENO);
+		ft_putstr_fd("\t2.Not more than one exit allowed\n\t3.No collectibles found on map\n\t4.Map doesn't exist\n", STDOUT_FILENO);
 		exit(1);
 	}
 	close(map.fd);
@@ -516,7 +534,7 @@ void	check_map_dimensions()
 				if (g_m_data.map_width1 != g_m_data.map_width2)
 				{
 					printf("%d, %d:\n", g_m_data.map_width1, g_m_data.map_width2);
-					printf("Not a valid map\n");
+					ft_putstr_fd("Error\nNot a valid map\n", STDOUT_FILENO);
 					exit(1);
 				}
 			}
@@ -534,7 +552,7 @@ void	is_top_wall_valid()
 	{
 		if (g_m_data.arr[0][i] != '1')
 		{
-			printf("Top Outer wall is not valid\n");
+			ft_putstr_fd("Error\nTop Outer wall is not valid\n", STDOUT_FILENO);
 			exit(1);
 		}
 		i++;
@@ -552,7 +570,7 @@ void	is_bottom_wall_valid()
 	{
 		if (g_m_data.arr[g_m_data.last_line][i] != '1')
 		{
-			printf("bottom Outer wall is not valid\n");
+			ft_putstr_fd("Error\nbottom Outer wall is not valid\n", STDOUT_FILENO);
 			exit(1);
 		}
 		i++;
@@ -568,7 +586,7 @@ void	is_left_wall_valid()
 	{
 		if (g_m_data.arr[i][0] != '1')
 		{
-			printf("Left Outer wall is not valid\n");
+			ft_putstr_fd("Error\nLeft Outer wall is not valid\n", STDOUT_FILENO);
 			exit(1);
 		}
 		i++;
@@ -584,7 +602,7 @@ void	is_right_wall_valid()
 	{
 		if (g_m_data.arr[i][g_m_data.map_width1] != '1')
 		{
-			printf("Right outer wall is not valid\n");
+			ft_putstr_fd("Error\nRight outer wall is not valid\n", STDOUT_FILENO);
 			exit(1);
 		}
 		i++;
@@ -599,59 +617,76 @@ void	check_walls()
 	is_right_wall_valid();
 }
 
+void	clean_up(mlx_t *mlx, texture_t *val)
+{
+	mlx_delete_image(mlx, g_images->player);
+	mlx_delete_image(mlx, g_images->bg);
+	mlx_delete_image(mlx, g_images->collectible);
+	mlx_delete_image(mlx, g_images->escape);
+	mlx_delete_image(mlx, g_images->wall);
+	mlx_delete_texture(val->player_texture);
+	mlx_delete_texture(val->bg_texture);
+	mlx_delete_texture(val->collectible_texture);
+	mlx_delete_texture(val->escape_texture);
+	mlx_delete_texture(val->wall_texture);
+	free(g_images);
+	free(val);
+}
+
 void	start_game()
 {
 	mlx_t* mlx;
 	texture_t *val;
 
-	mlx = mlx_init(WIDTH, HEIGHT, "Save The Dinosaurs (STD)", true);
+	mlx = mlx_init(WIDTH, HEIGHT, "Jurassic Age", true);
 	val = (texture_t*) malloc(sizeof(texture_t));
 	g_images = (game_image_t*) malloc(sizeof(game_image_t));
 	if (!g_images || !val || !mlx)
-		error();
+		return ;
 	create_textures(val);
 	create_g_images(g_images, mlx, val);
-
-	if (mlx_image_to_window(mlx, g_images->bg, 0, 0) < 0)
-		error();
+	mlx_image_to_window(mlx, g_images->bg, 0, 0);
 	parse_game_map(mlx);
 	check_map_dimensions();
 	if (g_m_data.line_count == g_m_data.map_width1 + 1)
 	{
-		printf("Map is a square, it should be rectangular\n");
+		ft_putstr_fd("Error\nMap is a square, it should be rectangular\n", STDOUT_FILENO);
 		exit(1);
 	}
 	check_walls();
 	mlx_loop_hook(mlx, &hook, mlx);
 	mlx_image_to_window(mlx, g_images->player, g_m_data.player_location_x, g_m_data.player_location_y);
 	mlx_loop(mlx);
+	clean_up(mlx, val);
+	mlx_terminate(mlx);
 }
 
 int	main(int argc, char *argv[])
 {
-	int i;
-	int valid_file;
+	params_t	params;
 
-	i = 0;
-	valid_file = 0;
 	if (argc != 2)
-		error();
-	while (argv[1][i++] != '\0')
+		ft_putstr_fd("Error\nUsage sample: ./so_long \"./maps/map01.ber\"\n", STDOUT_FILENO);
+	else
 	{
-		if (argv[1][i] == '.')
+		while (argv[1][params.i++] != '\0')
 		{
-			if (argv[1][i + 1] == 'b' && argv[1][i + 2] == 'e'
-			&& argv[1][i + 3] == 'r')
+			if (argv[1][params.i] == '.')
 			{
-				if (argv[1][i + 4] != '\0')
-					break;
-				g_m_data.ber_file = argv[1];
-				start_game();
-				valid_file = 1;
+				if (argv[1][params.i + 1] == 'b' && argv[1][params.i + 2] == 'e'
+				&& argv[1][params.i + 3] == 'r')
+				{
+					if (argv[1][params.i + 4] != '\0')
+						break;
+					g_m_data.ber_file = argv[1];
+					params.valid_file = 1;
+					start_game();
+				}
 			}
 		}
+		if (!params.valid_file)
+			ft_putstr_fd("Error\nFile format not valid\n", STDOUT_FILENO);
 	}
-	if (!valid_file)
-		printf("File format not valid");
+	system("leaks test");
 	return (EXIT_SUCCESS);
 }
