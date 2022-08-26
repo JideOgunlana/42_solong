@@ -24,37 +24,37 @@
 
 
 // My struct to save lines
-typedef struct params_s
+typedef struct s_params
 {
 	int		i;
 	int		j;
 	int		valid_file;
-}			params_t;
+}			t_params;
 
 
 // variables to create textures
-typedef struct texture_s
+typedef struct s_texture
 {
 	mlx_texture_t* wall_texture;
 	mlx_texture_t* player_texture;
 	mlx_texture_t* bg_texture; 
 	mlx_texture_t* collectible_texture;
 	mlx_texture_t* escape_texture;
-}				texture_t;
+}				t_texture;
 
 // variables to create an image
-typedef struct game_images_s
+typedef struct s_game_image
 {
 	mlx_image_t	*player;
 	mlx_image_t	*wall;
 	mlx_image_t	*collectible;
 	mlx_image_t	*escape;
 	mlx_image_t	*bg;
-}				game_image_t;
+}				t_game_image;
 
 
 // variables to parse the map
-typedef struct map_parsing_s
+typedef struct s_map_parsing
 {
 	int		x;
 	int		y;
@@ -64,11 +64,11 @@ typedef struct map_parsing_s
 	int		escape_count;
 	int		collectible_count;
 	char	*line;
-}			map_parsing_t;
+}			t_map_parsing;
 
 
 // variables to create map data and work with the map (coordinates)
-typedef struct map_data_s
+typedef struct s_map_data
 {
 	char	*arr[10000000];
 	char	*ber_file;
@@ -79,11 +79,11 @@ typedef struct map_data_s
 	int		map_width1;
 	int		map_width2;
 	int 	last_line;
-}			map_data_t;
+}			t_map_data;
 
 
-game_image_t	*g_images;
-map_data_t		g_m_data;
+t_game_image	*g_images;
+t_map_data		g_m_data;
 
 int	wall_in_w_direction(int wall_index)
 {
@@ -206,7 +206,7 @@ int	player_wins(int grabbed_eggs, int egg_index, int i, int j)
 
 int check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	params_t params;
+	t_params params;
 
 	params.i = -1;
 	while (g_m_data.arr[++params.i] != 0)
@@ -217,7 +217,7 @@ int check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
 			{
 				printf("You saved the \"Dinosaurs\"\n");
-				break ;
+				exit(1);
 			}
 			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
@@ -239,7 +239,7 @@ int check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 
 int check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	params_t params;
+	t_params params;
 
 	params.i = -1;
 	while (g_m_data.arr[++params.i] != 0)
@@ -250,7 +250,7 @@ int check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
 			{
 				printf("You saved the \"Dinosaurs\"\n");
-				break ;
+				exit(1);
 			}
 			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
@@ -271,7 +271,7 @@ int check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 
 int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	params_t params;
+	t_params params;
 
 	params.i = -1;
 	while (g_m_data.arr[++params.i] != 0)
@@ -282,7 +282,7 @@ int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
 			{
 				printf("You saved the \"Dinosaurs\"\n");
-				break ;
+				exit(1);
 			}
 			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
@@ -303,7 +303,7 @@ int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 
 int check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	params_t params;
+	t_params params;
 
 	params.i = -1;
 	while (g_m_data.arr[++params.i] != 0)
@@ -314,7 +314,7 @@ int check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
 			{
 				printf("You saved the \"Dinosaurs\"\n");
-				break ;
+				exit(1);
 			}
 			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
@@ -341,8 +341,6 @@ void	w_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	move = check_for_w_move(grabbed_eggs, egg_index, wall_index);
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].y -= 4;
-	// if (g_m_data.movement_count %48 == 0)
-		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 		ft_putstr_fd("moves: ", STDOUT_FILENO);
 		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
 		ft_putchar_fd('\n', STDOUT_FILENO);
@@ -356,8 +354,6 @@ void	s_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	move = check_for_s_move(grabbed_eggs,  egg_index, wall_index);
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].y += 4;
-	// if (g_m_data.movement_count %48 == 0)
-		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 		ft_putstr_fd("moves: ", STDOUT_FILENO);
 		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
 		ft_putchar_fd('\n', STDOUT_FILENO);
@@ -371,8 +367,6 @@ void	a_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	move = check_for_a_move(grabbed_eggs,  egg_index, wall_index);
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].x -= 4;
-	// if (g_m_data.movement_count %48 == 0)
-		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 		ft_putstr_fd("moves: ", STDOUT_FILENO);
 		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
 		ft_putchar_fd('\n', STDOUT_FILENO);
@@ -386,8 +380,6 @@ void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 	move = check_for_d_move(grabbed_eggs,  egg_index, wall_index);
 	if (move && g_m_data.movement_count++)
 		g_images->player->instances[0].x += 4;
-	// if (g_m_data.movement_count %48 == 0)
-		// printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 		ft_putstr_fd("moves: ", STDOUT_FILENO);
 		ft_putnbr_fd(g_m_data.movement_count, STDOUT_FILENO);
 		ft_putchar_fd('\n', STDOUT_FILENO);
@@ -418,7 +410,7 @@ void	hook(void *key)
 }
 
 
-void	create_textures(texture_t *val)
+void	create_textures(t_texture *val)
 {
 	val->wall_texture =  mlx_load_png("./img/wall1.png");
 	val->player_texture = mlx_load_png("./img/dion.png");
@@ -435,7 +427,7 @@ void	create_textures(texture_t *val)
 	}
 }
 
-void	create_g_images(game_image_t* g_images, mlx_t *mlx, texture_t *val)
+void	create_g_images(t_game_image* g_images, mlx_t *mlx, t_texture *val)
 {
 	g_images->bg = mlx_texture_to_image(mlx, val->bg_texture);
 	g_images->player = mlx_texture_to_image(mlx, val->player_texture);
@@ -452,14 +444,14 @@ void	create_g_images(game_image_t* g_images, mlx_t *mlx, texture_t *val)
 	}
 }
 
-void	get_player_location(map_parsing_t *p_map)
+void	get_player_location(t_map_parsing *p_map)
 {
 		g_m_data.player_location_x = 48 * p_map->x;
 		g_m_data.player_location_y = 48 * p_map->y;
 		p_map->player_count++;
 }
 
-void	check_line(mlx_t *mlx, map_parsing_t *p_map)
+void	check_line(mlx_t *mlx, t_map_parsing *p_map)
 {
 	while (p_map->line[p_map->j] != '\0')
 	{
@@ -486,33 +478,27 @@ void	check_line(mlx_t *mlx, map_parsing_t *p_map)
 	}
 }
 
-void	parse_game_map(mlx_t *mlx)
+void	parse_game_map(mlx_t *mlx, t_map_parsing *p_map)
 {
-	map_parsing_t	map;
-	map_parsing_t	*p_map;
-
-	p_map = &map;
-	map.fd = open(g_m_data.ber_file, O_RDONLY);
 	while (1)
 	{
-		map.j = 0;
-		map.x = 0;
-		map.line = get_next_line(map.fd);
-		if (!map.line)
+		p_map->j = 0;
+		p_map->x = 0;
+		p_map->line = get_next_line(p_map->fd);
+		if (!p_map->line)
 			break ;
-		g_m_data.arr[map.y] = map.line;
+		g_m_data.arr[p_map->y] = p_map->line;
 		check_line(mlx, p_map);
-
 		g_m_data.line_count += 1;
-		map.y++;
+		p_map->y++;
 	}
-	if (map.collectible_count < 1 || map.player_count != 1 || map.escape_count != 1)
+	if (p_map->collectible_count < 1 || p_map->player_count != 1 || p_map->escape_count != 1)
 	{
 		ft_putstr_fd("Error\n***PLEASE NOTE*** possible issues with map:\n\t1.Not more than one player allowed\n", STDOUT_FILENO);
 		ft_putstr_fd("\t2.Not more than one exit allowed\n\t3.No collectibles found on map\n\t4.Map doesn't exist\n", STDOUT_FILENO);
 		exit(1);
 	}
-	close(map.fd);
+	close(p_map->fd);
 }
 
 void	check_map_dimensions()
@@ -617,8 +603,7 @@ void	check_walls()
 	is_right_wall_valid();
 }
 
-// frees memory no longer in use
-void	clean_up(mlx_t *mlx, texture_t *val)
+void	clean_up(mlx_t *mlx, t_texture *val)
 {
 	mlx_delete_image(mlx, g_images->player);
 	mlx_delete_image(mlx, g_images->bg);
@@ -634,20 +619,12 @@ void	clean_up(mlx_t *mlx, texture_t *val)
 	free(val);
 }
 
-void	start_game()
+void	set_up_game(mlx_t *mlx, t_texture *val, t_map_parsing *p_map)
 {
-	mlx_t* mlx;
-	texture_t *val;
-
-	mlx = mlx_init(WIDTH, HEIGHT, "Jurassic Age", true);
-	val = (texture_t*) malloc(sizeof(texture_t));
-	g_images = (game_image_t*) malloc(sizeof(game_image_t));
-	if (!g_images || !val || !mlx)
-		return ;
 	create_textures(val);
 	create_g_images(g_images, mlx, val);
 	mlx_image_to_window(mlx, g_images->bg, 0, 0);
-	parse_game_map(mlx);
+	parse_game_map(mlx, p_map);
 	check_map_dimensions();
 	if (g_m_data.line_count == g_m_data.map_width1 + 1)
 	{
@@ -657,14 +634,37 @@ void	start_game()
 	check_walls();
 	mlx_loop_hook(mlx, &hook, mlx);
 	mlx_image_to_window(mlx, g_images->player, g_m_data.player_location_x, g_m_data.player_location_y);
+	mlx_set_window_size(mlx, (g_m_data.map_width1 + 1) * 48, g_m_data.line_count * 48);
 	mlx_loop(mlx);
 	clean_up(mlx, val);
 	mlx_terminate(mlx);
 }
 
+void	start_game()
+{
+	mlx_t*			mlx;
+	t_texture		*val;
+	t_map_parsing	map;
+	t_map_parsing	*p_map;
+
+	p_map = &map;
+	map.fd = open(g_m_data.ber_file, O_RDONLY);
+	if (map.fd == -1)
+	{
+		perror("Error\n");
+		exit(EXIT_FAILURE);
+	}
+	mlx = mlx_init(WIDTH, HEIGHT, "Jurassic Age", true);
+	val = (t_texture*) malloc(sizeof(t_texture));
+	g_images = (t_game_image*) malloc(sizeof(t_game_image));
+	if (!g_images || !val || !mlx)
+		return ;
+	set_up_game(mlx, val, p_map);
+}
+
 int	main(int argc, char *argv[])
 {
-	params_t	params;
+	t_params	params;
 
 	if (argc != 2)
 		ft_putstr_fd("Error\nUsage sample: ./so_long \"./maps/map01.ber\"\n", STDOUT_FILENO);
