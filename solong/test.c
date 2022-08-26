@@ -19,10 +19,10 @@
 
 #define WIDTH 960
 #define HEIGHT 288
+#define OBJ_LENGTH 42
 
 
 // My struct to save lines
-
 typedef struct params_s
 {
 	int		i;
@@ -34,7 +34,7 @@ typedef struct params_s
 typedef struct texture_s
 {
 	mlx_texture_t* wall_texture;
-	mlx_texture_t* texture;
+	mlx_texture_t* player_texture;
 	mlx_texture_t* bg_texture; 
 	mlx_texture_t* collectible_texture;
 	mlx_texture_t* escape_texture;
@@ -43,14 +43,13 @@ typedef struct texture_s
 // variables to create an image
 typedef struct game_images_s
 {
-	mlx_image_t	*img;
+	mlx_image_t	*player;
 	mlx_image_t	*wall;
 	mlx_image_t	*collectible;
 	mlx_image_t	*escape;
 	mlx_image_t	*bg;
 }				game_image_t;
 
-game_image_t *images;
 
 // variables to parse the map
 typedef struct map_parsing_s
@@ -68,24 +67,29 @@ typedef struct map_parsing_s
 
 
 // variables to create map data and work with the map (coordinates)
-int player_location_x;
-int player_location_y;
-char *arr[10000000];
-int movement_count = 0;
-int line_count = 0;
-int map_width1 = 0;
-int map_width2 = 0;
-int last_line;
+typedef struct map_data_s
+{
+	char	*arr[10000000];
+	char	*ber_file;
+	int 	player_location_x;
+	int		player_location_y;
+	int		movement_count;
+	int		line_count;
+	int		map_width1;
+	int		map_width2;
+	int 	last_line;
+}			map_data_t;
 
 
-int object_length = 42;
+game_image_t	*g_images;
+map_data_t		g_m_data;
 
 int	wall_in_w_direction(int wall_index)
 {
-	if (images->img->instances[0].y + object_length - 4 >= images->wall->instances[wall_index].y &&			// predicting the future by x amount of px to detect a wall
-	images->img->instances[0].y - 4 <= images->wall->instances[wall_index].y + object_length &&
-	images->img->instances[0].x <= images->wall->instances[wall_index].x + object_length &&
-	images->img->instances[0].x + object_length >= images->wall->instances[wall_index].x
+	if (g_images->player->instances[0].y + OBJ_LENGTH - 4 >= g_images->wall->instances[wall_index].y &&			// predicting the future by x amount of px to detect a wall
+	g_images->player->instances[0].y - 4 <= g_images->wall->instances[wall_index].y + OBJ_LENGTH &&
+	g_images->player->instances[0].x <= g_images->wall->instances[wall_index].x + OBJ_LENGTH &&
+	g_images->player->instances[0].x + OBJ_LENGTH >= g_images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -95,10 +99,10 @@ int	wall_in_w_direction(int wall_index)
 
 int wall_in_s_direction(int wall_index)
 {
-	if (images->img->instances[0].y + object_length + 4 >= images->wall->instances[wall_index].y &&
-	images->img->instances[0].y + 4 <= images->wall->instances[wall_index].y + object_length &&
-	images->img->instances[0].x <= images->wall->instances[wall_index].x + object_length &&
-	images->img->instances[0].x + object_length >= images->wall->instances[wall_index].x
+	if (g_images->player->instances[0].y + OBJ_LENGTH + 4 >= g_images->wall->instances[wall_index].y &&
+	g_images->player->instances[0].y + 4 <= g_images->wall->instances[wall_index].y + OBJ_LENGTH &&
+	g_images->player->instances[0].x <= g_images->wall->instances[wall_index].x + OBJ_LENGTH &&
+	g_images->player->instances[0].x + OBJ_LENGTH >= g_images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -108,10 +112,10 @@ int wall_in_s_direction(int wall_index)
 
 int wall_in_a_direction(int wall_index)
 {
-	if (images->img->instances[0].y + object_length >= images->wall->instances[wall_index].y &&
-	images->img->instances[0].y <= images->wall->instances[wall_index].y + object_length &&
-	images->img->instances[0].x - 4 <= images->wall->instances[wall_index].x + object_length &&
-	images->img->instances[0].x + object_length - 4 >= images->wall->instances[wall_index].x
+	if (g_images->player->instances[0].y + OBJ_LENGTH >= g_images->wall->instances[wall_index].y &&
+	g_images->player->instances[0].y <= g_images->wall->instances[wall_index].y + OBJ_LENGTH &&
+	g_images->player->instances[0].x - 4 <= g_images->wall->instances[wall_index].x + OBJ_LENGTH &&
+	g_images->player->instances[0].x + OBJ_LENGTH - 4 >= g_images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -121,10 +125,10 @@ int wall_in_a_direction(int wall_index)
 
 int wall_in_d_direction(int wall_index)
 {
-	if (images->img->instances[0].y + object_length >= images->wall->instances[wall_index].y &&
-	images->img->instances[0].y <= images->wall->instances[wall_index].y + object_length &&
-	images->img->instances[0].x + 4 <= images->wall->instances[wall_index].x + object_length &&
-	images->img->instances[0].x + object_length + 4 >= images->wall->instances[wall_index].x
+	if (g_images->player->instances[0].y + OBJ_LENGTH >= g_images->wall->instances[wall_index].y &&
+	g_images->player->instances[0].y <= g_images->wall->instances[wall_index].y + OBJ_LENGTH &&
+	g_images->player->instances[0].x + 4 <= g_images->wall->instances[wall_index].x + OBJ_LENGTH &&
+	g_images->player->instances[0].x + OBJ_LENGTH + 4 >= g_images->wall->instances[wall_index].x
 	)
 	{
 		return (1);
@@ -134,10 +138,10 @@ int wall_in_d_direction(int wall_index)
 
 int	picked_collectible(int egg_index)
 {
-	if (images->img->instances[0].y + object_length >= images->collectible->instances[egg_index].y &&
-	images->img->instances[0].y <= images->collectible->instances[egg_index].y + object_length &&
-	images->img->instances[0].x <= images->collectible->instances[egg_index].x + object_length &&
-	images->img->instances[0].x + object_length >= images->collectible->instances[egg_index].x
+	if (g_images->player->instances[0].y + OBJ_LENGTH >= g_images->collectible->instances[egg_index].y &&
+	g_images->player->instances[0].y <= g_images->collectible->instances[egg_index].y + OBJ_LENGTH &&
+	g_images->player->instances[0].x <= g_images->collectible->instances[egg_index].x + OBJ_LENGTH &&
+	g_images->player->instances[0].x + OBJ_LENGTH >= g_images->collectible->instances[egg_index].x
 	)
 	{
 		return (1);
@@ -147,10 +151,10 @@ int	picked_collectible(int egg_index)
 
 int	player_can_exit_game(int egg_index)
 {
-	if (images->img->instances[0].y + object_length >= images->escape->instances[egg_index].y &&
-	images->img->instances[0].y <= images->escape->instances[egg_index].y + object_length &&
-	images->img->instances[0].x <= images->escape->instances[egg_index].x + object_length &&
-	images->img->instances[0].x + object_length >= images->escape->instances[egg_index].x
+	if (g_images->player->instances[0].y + OBJ_LENGTH >= g_images->escape->instances[egg_index].y &&
+	g_images->player->instances[0].y <= g_images->escape->instances[egg_index].y + OBJ_LENGTH &&
+	g_images->player->instances[0].x <= g_images->escape->instances[egg_index].x + OBJ_LENGTH &&
+	g_images->player->instances[0].x + OBJ_LENGTH >= g_images->escape->instances[egg_index].x
 	)
 	{
 		return (1);
@@ -163,7 +167,7 @@ int	picked_collectibles_count(int collectibles_count, int grabbed_eggs)
 	int k = 0;
 	while (k  < collectibles_count)
 	{
-		if (images->collectible->instances[k].enabled == 0)
+		if (g_images->collectible->instances[k].enabled == 0)
 			grabbed_eggs += 1;
 		k++;
 	}
@@ -173,10 +177,7 @@ int	picked_collectibles_count(int collectibles_count, int grabbed_eggs)
 int	player_on_exit_tile(int egg_index)
 {
 	if (player_can_exit_game(egg_index))
-	{
-		// printf("Well done, you saved the dinosaurs!");
 		return 1;
-	}
 	return 0;
 }
 
@@ -184,15 +185,8 @@ int	player_on_collectible_tile(int egg_index)
 {
 	if (picked_collectible(egg_index))
 	{
-		printf("collectible - (%d, %d)\n", images->collectible->instances[egg_index].x, images->collectible->instances[egg_index].y);
-		// printf("%d, %d", egg_index, i + j);
-
-		images->collectible->instances[egg_index].enabled = 0;
-		if (images->collectible->instances[egg_index].enabled == 0)
-		{
-			printf("Number of collectibles on screen: %d\n", images->collectible->count);
-			return 1 ;
-		}
+		printf("collectible - (%d, %d)\n", g_images->collectible->instances[egg_index].x, g_images->collectible->instances[egg_index].y);
+		g_images->collectible->instances[egg_index].enabled = 0;
 	}
 	return 0;
 }
@@ -200,11 +194,11 @@ int	player_on_collectible_tile(int egg_index)
 
 int	player_wins(int grabbed_eggs, int egg_index, int i, int j)
 {
-	if (grabbed_eggs == images->collectible->count)
+	if (grabbed_eggs == g_images->collectible->count)
 	{
-		if(arr[i][j] == 'E')
+		if(g_m_data.arr[i][j] == 'E')
 			if (player_on_exit_tile(egg_index))
-				return 1; //break ;
+				return 1;
 	}
 	return 0;
 }
@@ -214,20 +208,23 @@ int check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 	params_t params;
 
 	params.i = -1;
-	while (arr[++params.i] != 0)
+	while (g_m_data.arr[++params.i] != 0)
 	{
 		params.j = -1;
-		while (arr[params.i][++params.j] != '\0')
+		while (g_m_data.arr[params.i][++params.j] != '\0')
 		{
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+			{
+				printf("You saved the \"Dinosaurs\"\n");
 				break ;
-			if (arr[params.i][params.j] == 'C')
+			}
+			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
 				if (player_on_collectible_tile(egg_index))
 					break ;
 				egg_index += 1;
 			}
-			if (arr[params.i][params.j] == '1')
+			if (g_m_data.arr[params.i][params.j] == '1')
 			{
 				if (wall_in_w_direction(wall_index))
 					return 0;
@@ -244,20 +241,23 @@ int check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 	params_t params;
 
 	params.i = -1;
-	while (arr[++params.i] != 0)
+	while (g_m_data.arr[++params.i] != 0)
 	{
 		params.j = -1;
-		while (arr[params.i][++params.j] != '\0')
+		while (g_m_data.arr[params.i][++params.j] != '\0')
 		{
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+			{
+				printf("You saved the \"Dinosaurs\"\n");
 				break ;
-			if (arr[params.i][params.j] == 'C')
+			}
+			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
 				if (player_on_collectible_tile(egg_index))
 					break ;
 				egg_index += 1;
 			}
-			if (arr[params.i][params.j] == '1')
+			if (g_m_data.arr[params.i][params.j] == '1')
 			{
 				if (wall_in_s_direction(wall_index))
 					return 0;
@@ -273,20 +273,23 @@ int check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 	params_t params;
 
 	params.i = -1;
-	while (arr[++params.i] != 0)
+	while (g_m_data.arr[++params.i] != 0)
 	{
 		params.j = -1;
-		while (arr[params.i][++params.j] != '\0')
+		while (g_m_data.arr[params.i][++params.j] != '\0')
 		{
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+			{
+				printf("You saved the \"Dinosaurs\"\n");
 				break ;
-			if (arr[params.i][params.j] == 'C')
+			}
+			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
 				if (player_on_collectible_tile(egg_index))
 					break ;
 				egg_index += 1;
 			}
-			if (arr[params.i][params.j] == '1')
+			if (g_m_data.arr[params.i][params.j] == '1')
 			{
 				if (wall_in_a_direction(wall_index))
 					return 0;
@@ -302,20 +305,23 @@ int check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
 	params_t params;
 
 	params.i = -1;
-	while (arr[++params.i] != 0)
+	while (g_m_data.arr[++params.i] != 0)
 	{
 		params.j = -1;
-		while (arr[params.i][++params.j] != '\0')
+		while (g_m_data.arr[params.i][++params.j] != '\0')
 		{
 			if (player_wins(grabbed_eggs, egg_index, params.i, params.j))
+			{
+				printf("You saved the \"Dinosaurs\"\n");
 				break ;
-			if (arr[params.i][params.j] == 'C')
+			}
+			if (g_m_data.arr[params.i][params.j] == 'C')
 			{
 				if (player_on_collectible_tile(egg_index))
 					break ;
 				egg_index += 1;
 			}
-			if (arr[params.i][params.j] == '1')
+			if (g_m_data.arr[params.i][params.j] == '1')
 			{
 				if (wall_in_d_direction(wall_index))
 					return 0;
@@ -330,48 +336,48 @@ void	w_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(g_images->collectible->count, grabbed_eggs);
 	move = check_for_w_move(grabbed_eggs, egg_index, wall_index);
-	if (move && movement_count++)
-		images->img->instances[0].y -= 4;
-	// if (movement_count %48 == 0)
-		printf("moves: %d\n", movement_count /* / 48 */);
+	if (move && g_m_data.movement_count++)
+		g_images->player->instances[0].y -= 4;
+	// if (g_m_data.movement_count %48 == 0)
+		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 }
 
 void	s_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(g_images->collectible->count, grabbed_eggs);
 	move = check_for_s_move(grabbed_eggs,  egg_index, wall_index);
-	if (move && movement_count++)
-		images->img->instances[0].y += 4;
-	// if (movement_count %48 == 0)
-		printf("moves: %d\n", movement_count /* / 48 */);
+	if (move && g_m_data.movement_count++)
+		g_images->player->instances[0].y += 4;
+	// if (g_m_data.movement_count %48 == 0)
+		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 }
 
 void	a_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(g_images->collectible->count, grabbed_eggs);
 	move = check_for_a_move(grabbed_eggs,  egg_index, wall_index);
-	if (move && movement_count++)
-		images->img->instances[0].x -= 4;
-	// if (movement_count %48 == 0)
-		printf("moves: %d\n", movement_count /* / 48 */);
+	if (move && g_m_data.movement_count++)
+		g_images->player->instances[0].x -= 4;
+	// if (g_m_data.movement_count %48 == 0)
+		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 }
 
 void	d_key_pressed(int grabbed_eggs, int egg_index, int wall_index)
 {
 	int move;
 
-	grabbed_eggs += picked_collectibles_count(images->collectible->count, grabbed_eggs);
+	grabbed_eggs += picked_collectibles_count(g_images->collectible->count, grabbed_eggs);
 	move = check_for_d_move(grabbed_eggs,  egg_index, wall_index);
-	if (move && movement_count++)
-		images->img->instances[0].x += 4;
-	// if (movement_count %48 == 0)
-		printf("moves: %d\n", movement_count /* / 48 */);
+	if (move && g_m_data.movement_count++)
+		g_images->player->instances[0].x += 4;
+	// if (g_m_data.movement_count %48 == 0)
+		printf("moves: %d\n", g_m_data.movement_count /* / 48 */);
 }
 
 void	hook(void *key)
@@ -404,57 +410,57 @@ static void error(void)
 	exit(EXIT_FAILURE);
 }
 
-
-
 void	create_textures(texture_t *val)
 {
 	val->wall_texture =  mlx_load_png("./img/wall1.png");
-	val->texture = mlx_load_png("./img/dion.png");
+	val->player_texture = mlx_load_png("./img/dion.png");
 	val->bg_texture = mlx_load_png("./img/map.png");
 	val->collectible_texture = mlx_load_png("./img/egg1.png");
 	val->escape_texture = mlx_load_png("./img/escape.png");
 
-	if (!val->wall_texture || !val->texture || !val->bg_texture || !val->collectible_texture || !val->escape_texture)
+	if (!val->wall_texture || !val->player_texture || !val->bg_texture || !val->collectible_texture || !val->escape_texture)
 		error();
 }
 
-void	create_images(game_image_t* images, mlx_t *mlx, texture_t *val)
+void	create_g_images(game_image_t* g_images, mlx_t *mlx, texture_t *val)
 {
-	images->bg = mlx_texture_to_image(mlx, val->bg_texture);
-	images->img = mlx_texture_to_image(mlx, val->texture);
-	images->wall = mlx_texture_to_image(mlx, val->wall_texture);
-	images->collectible = mlx_texture_to_image(mlx, val->collectible_texture);
-	images->escape = mlx_texture_to_image(mlx, val->escape_texture);
+	g_images->bg = mlx_texture_to_image(mlx, val->bg_texture);
+	g_images->player = mlx_texture_to_image(mlx, val->player_texture);
+	g_images->wall = mlx_texture_to_image(mlx, val->wall_texture);
+	g_images->collectible = mlx_texture_to_image(mlx, val->collectible_texture);
+	g_images->escape = mlx_texture_to_image(mlx, val->escape_texture);
 
-	if (!images->bg || !images->img || !images->wall || !images->collectible || !images->escape)
+	if (!g_images->bg || !g_images->player || !g_images->wall || !g_images->collectible || !g_images->escape)
 		error();
+}
+
+void	get_player_location(map_parsing_t *p_map)
+{
+		g_m_data.player_location_x = 48 * p_map->x;
+		g_m_data.player_location_y = 48 * p_map->y;
+		p_map->player_count++;
 }
 
 void	check_line(mlx_t *mlx, map_parsing_t *p_map)
 {
 	while (p_map->line[p_map->j] != '\0')
 	{
-		if (p_map->line[p_map->j] != '1' && p_map->line[p_map->j] != 'P' && p_map->line[p_map->j] != 'E' && p_map->line[p_map->j] != 'C' && p_map->line[p_map->j] != '0' && p_map->line[p_map->j] != '\n')
-		{
-			printf("%c, %d\n", p_map->line[p_map->j], p_map->j);
+		if (p_map->line[p_map->j] != '1' && p_map->line[p_map->j] != 'P'
+			&& p_map->line[p_map->j] != 'E' && p_map->line[p_map->j] != 'C'
+			&& p_map->line[p_map->j] != '0' && p_map->line[p_map->j] != '\n')
 			exit(1);
-		}
 		if (p_map->line[p_map->j] == '1')
-			mlx_image_to_window(mlx, images->wall, 48 * p_map->x, 48 * p_map->y);
+			mlx_image_to_window(mlx, g_images->wall, 48 * p_map->x, 48 * p_map->y);
 		if (p_map->line[p_map->j] == 'P')
-		{
-			player_location_x = 48 * p_map->x;
-			player_location_y = 48 * p_map->y;
-			p_map->player_count++;
-		}
+			get_player_location(p_map);
 		if (p_map->line[p_map->j] == 'C')
 		{
-			mlx_image_to_window(mlx, images->collectible, 48 * p_map->x, 48 * p_map->y);
+			mlx_image_to_window(mlx, g_images->collectible, 48 * p_map->x, 48 * p_map->y);
 			p_map->collectible_count += 1;
 		}
-		if (p_map->line[p_map->j] == 'E')
+		 if (p_map->line[p_map->j] == 'E')
 		{
-			mlx_image_to_window(mlx, images->escape, 48 * p_map->x , 48 * p_map->y);
+			mlx_image_to_window(mlx, g_images->escape, 48 * p_map->x , 48 * p_map->y);
 			p_map->escape_count++;
 		}
 		p_map->x++;
@@ -462,13 +468,13 @@ void	check_line(mlx_t *mlx, map_parsing_t *p_map)
 	}
 }
 
-void	parse_map(mlx_t *mlx)
+void	parse_game_map(mlx_t *mlx)
 {
 	map_parsing_t	map;
 	map_parsing_t	*p_map;
 
 	p_map = &map;
-	map.fd = open("./maps/map01.ber", O_RDONLY);
+	map.fd = open(g_m_data.ber_file, O_RDONLY);
 	while (1)
 	{
 		map.j = 0;
@@ -476,17 +482,19 @@ void	parse_map(mlx_t *mlx)
 		map.line = get_next_line(map.fd);
 		if (!map.line)
 			break ;
-		arr[map.y] = map.line;
+		g_m_data.arr[map.y] = map.line;
 		check_line(mlx, p_map);
 
-		line_count += 1;
+		g_m_data.line_count += 1;
 		map.y++;
 	}
 	if (map.collectible_count < 1 || map.player_count != 1 || map.escape_count != 1)
 	{
-		printf("|only one player allowed| -OR- |only one exit allowed|  -OR- |No collectibles on map|");
-		exit(0);
+		printf("\n***PLEASE NOTE*** possible issues with map:\n\t1.Not more than one player allowed\n");
+		printf("\t2.Not more than one exit allowed\n\t3.No collectibles found on map\n\t4.Map doesn't exist\n");
+		exit(1);
 	}
+	close(map.fd);
 }
 
 void	check_map_dimensions()
@@ -494,20 +502,20 @@ void	check_map_dimensions()
 	int i;
 
 	i = 0;
-	while (arr[i] != 0)
+	while (g_m_data.arr[i] != 0)
 	{
 		int j = 0;
-		while (arr[i][j] != '\0' && arr[i][j] != '\n')
+		while (g_m_data.arr[i][j] != '\0' && g_m_data.arr[i][j] != '\n')
 		{
-			if (i == 0 && arr[i][j + 1] == '\n')
-				map_width1 = j;
-			if (i > 0 && (arr[i][j + 1] == '\n' || arr[i][j + 1] == '\0'))
-				map_width2 = j;
-			if (map_width1 && map_width2)
+			if (i == 0 && g_m_data.arr[i][j + 1] == '\n')
+				g_m_data.map_width1 = j;
+			if (i > 0 && (g_m_data.arr[i][j + 1] == '\n' || g_m_data.arr[i][j + 1] == '\0'))
+				g_m_data.map_width2 = j;
+			if (g_m_data.map_width1 && g_m_data.map_width2)
 			{
-				if (map_width1 != map_width2)
+				if (g_m_data.map_width1 != g_m_data.map_width2)
 				{
-					printf("%d, %d:\n", map_width1, map_width2);
+					printf("%d, %d:\n", g_m_data.map_width1, g_m_data.map_width2);
 					printf("Not a valid map\n");
 					exit(1);
 				}
@@ -518,14 +526,13 @@ void	check_map_dimensions()
 	}
 }
 
-	// checking map has walls on all sides
-
+// checking map has walls on all sides
 void	is_top_wall_valid()
 {
 	int i = 0;
-	while (arr[0][i] != '\0' && arr[0][i] != '\n')
+	while (g_m_data.arr[0][i] != '\0' && g_m_data.arr[0][i] != '\n')
 	{
-		if (arr[0][i] != '1')
+		if (g_m_data.arr[0][i] != '1')
 		{
 			printf("Top Outer wall is not valid\n");
 			exit(1);
@@ -539,11 +546,11 @@ void	is_bottom_wall_valid()
 	int i;
 
 	i = 0;
-	last_line = line_count - 1;
+	g_m_data.last_line = g_m_data.line_count - 1;
 
-	while (arr[last_line][i] != '\0' && arr[last_line][i] != '\n')
+	while (g_m_data.arr[g_m_data.last_line][i] != '\0' && g_m_data.arr[g_m_data.last_line][i] != '\n')
 	{
-		if (arr[last_line][i] != '1')
+		if (g_m_data.arr[g_m_data.last_line][i] != '1')
 		{
 			printf("bottom Outer wall is not valid\n");
 			exit(1);
@@ -557,9 +564,9 @@ void	is_left_wall_valid()
 	int i;
 
 	i = 0;
-	while (i < line_count)
+	while (i < g_m_data.line_count)
 	{
-		if (arr[i][0] != '1')
+		if (g_m_data.arr[i][0] != '1')
 		{
 			printf("Left Outer wall is not valid\n");
 			exit(1);
@@ -573,9 +580,9 @@ void	is_right_wall_valid()
 	int i;
 
 	i = 0;
-	while (i < line_count)
+	while (i < g_m_data.line_count)
 	{
-		if (arr[i][map_width1] != '1')
+		if (g_m_data.arr[i][g_m_data.map_width1] != '1')
 		{
 			printf("Right outer wall is not valid\n");
 			exit(1);
@@ -592,31 +599,59 @@ void	check_walls()
 	is_right_wall_valid();
 }
 
-int32_t	main(void)
+void	start_game()
 {
 	mlx_t* mlx;
 	texture_t *val;
 
-	mlx = mlx_init(WIDTH, HEIGHT, "Test", true);
+	mlx = mlx_init(WIDTH, HEIGHT, "Save The Dinosaurs (STD)", true);
 	val = (texture_t*) malloc(sizeof(texture_t));
-	images = (game_image_t*) malloc(sizeof(game_image_t));
-	if (!images || !val || !mlx)
+	g_images = (game_image_t*) malloc(sizeof(game_image_t));
+	if (!g_images || !val || !mlx)
 		error();
 	create_textures(val);
-	create_images(images, mlx, val);
+	create_g_images(g_images, mlx, val);
 
-	if (mlx_image_to_window(mlx, images->bg, 0, 0) < 0)
+	if (mlx_image_to_window(mlx, g_images->bg, 0, 0) < 0)
 		error();
-	parse_map(mlx);
+	parse_game_map(mlx);
 	check_map_dimensions();
-	if (line_count == map_width1 + 1)
+	if (g_m_data.line_count == g_m_data.map_width1 + 1)
 	{
 		printf("Map is a square, it should be rectangular\n");
 		exit(1);
 	}
 	check_walls();
 	mlx_loop_hook(mlx, &hook, mlx);
-	mlx_image_to_window(mlx, images->img, player_location_x, player_location_y);
+	mlx_image_to_window(mlx, g_images->player, g_m_data.player_location_x, g_m_data.player_location_y);
 	mlx_loop(mlx);
+}
+
+int	main(int argc, char *argv[])
+{
+	int i;
+	int valid_file;
+
+	i = 0;
+	valid_file = 0;
+	if (argc != 2)
+		error();
+	while (argv[1][i++] != '\0')
+	{
+		if (argv[1][i] == '.')
+		{
+			if (argv[1][i + 1] == 'b' && argv[1][i + 2] == 'e'
+			&& argv[1][i + 3] == 'r')
+			{
+				if (argv[1][i + 4] != '\0')
+					break;
+				g_m_data.ber_file = argv[1];
+				start_game();
+				valid_file = 1;
+			}
+		}
+	}
+	if (!valid_file)
+		printf("File format not valid");
 	return (EXIT_SUCCESS);
 }
