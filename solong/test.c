@@ -617,6 +617,7 @@ void	check_walls()
 	is_right_wall_valid();
 }
 
+// frees memory no longer in use
 void	clean_up(mlx_t *mlx, texture_t *val)
 {
 	mlx_delete_image(mlx, g_images->player);
