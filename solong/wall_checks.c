@@ -6,14 +6,12 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 01:01:06 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/28 03:40:32 by bogunlan         ###   ########.fr       */
+/*   Updated: 2022/08/28 18:04:36 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "solong.h"
 
-extern t_game_image	*g_images;
-extern t_map_data	*g_m_data;
 
 void	is_top_wall_valid(t_map_data *g_m_data)
 {

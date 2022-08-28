@@ -6,15 +6,14 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 01:51:25 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/27 17:36:05 by bogunlan         ###   ########.fr       */
+/*   Updated: 2022/08/28 18:07:59 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "solong.h"
 
-extern t_map_data	*g_m_data;
 
-int	check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
+int	check_for_w_move(t_map_data *g_m_data)
 {
 	t_params	params;
 
@@ -24,26 +23,26 @@ int	check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 		params.j = -1;
 		while (g_m_data->arr[params.i][++params.j] != '\0')
 		{
-			if (player_wins(grabbed_eggs, params.i, params.j))
+			if (player_wins(g_m_data->grabbed_eggs, params.i, params.j))
 				exit(1);
 			if (g_m_data->arr[params.i][params.j] == 'C')
 			{
-				if (player_on_collectible_tile(egg_index))
+				if (player_on_collectible_tile(g_m_data->egg_index))
 					break ;
-				egg_index += 1;
+				g_m_data->egg_index += 1;
 			}
 			if (g_m_data->arr[params.i][params.j] == '1')
 			{
-				if (wall_in_w_direction(wall_index))
+				if (wall_in_w_direction(g_m_data->wall_index))
 					return (0);
-				wall_index += 1;
+				g_m_data->wall_index += 1;
 			}
 		}
 	}
 	return (1);
 }
 
-int	check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
+int	check_for_s_move(t_map_data *g_m_data)
 {
 	t_params	params;
 
@@ -53,26 +52,26 @@ int	check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 		params.j = -1;
 		while (g_m_data->arr[params.i][++params.j] != '\0')
 		{
-			if (player_wins(grabbed_eggs, params.i, params.j))
+			if (player_wins(g_m_data->grabbed_eggs, params.i, params.j))
 				exit(1);
 			if (g_m_data->arr[params.i][params.j] == 'C')
 			{
-				if (player_on_collectible_tile(egg_index))
+				if (player_on_collectible_tile(g_m_data->egg_index))
 					break ;
-				egg_index += 1;
+				g_m_data->egg_index += 1;
 			}
 			if (g_m_data->arr[params.i][params.j] == '1')
 			{
-				if (wall_in_s_direction(wall_index))
+				if (wall_in_s_direction(g_m_data->wall_index))
 					return (0);
-				wall_index += 1;
+				g_m_data->wall_index += 1;
 			}
 		}
 	}
 	return (1);
 }
 
-int	check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
+int	check_for_a_move(t_map_data *g_m_data)
 {
 	t_params	params;
 
@@ -82,26 +81,26 @@ int	check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 		params.j = -1;
 		while (g_m_data->arr[params.i][++params.j] != '\0')
 		{
-			if (player_wins(grabbed_eggs, params.i, params.j))
+			if (player_wins(g_m_data->grabbed_eggs, params.i, params.j))
 				exit(1);
 			if (g_m_data->arr[params.i][params.j] == 'C')
 			{
-				if (player_on_collectible_tile(egg_index))
+				if (player_on_collectible_tile(g_m_data->egg_index))
 					break ;
-				egg_index += 1;
+				g_m_data->egg_index += 1;
 			}
 			if (g_m_data->arr[params.i][params.j] == '1')
 			{
-				if (wall_in_a_direction(wall_index))
+				if (wall_in_a_direction(g_m_data->wall_index))
 					return (0);
-				wall_index += 1;
+				g_m_data->wall_index += 1;
 			}
 		}
 	}
 	return (1);
 }
 
-int	check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
+int	check_for_d_move(t_map_data *g_m_data)
 {
 	t_params	params;
 
@@ -111,19 +110,19 @@ int	check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
 		params.j = -1;
 		while (g_m_data->arr[params.i][++params.j] != '\0')
 		{
-			if (player_wins(grabbed_eggs, params.i, params.j))
+			if (player_wins(g_m_data->grabbed_eggs, params.i, params.j))
 				exit(1);
 			if (g_m_data->arr[params.i][params.j] == 'C')
 			{
-				if (player_on_collectible_tile(egg_index))
+				if (player_on_collectible_tile(g_m_data->egg_index))
 					break ;
-				egg_index += 1;
+				g_m_data->egg_index += 1;
 			}
 			if (g_m_data->arr[params.i][params.j] == '1')
 			{
-				if (wall_in_d_direction(wall_index))
+				if (wall_in_d_direction(g_m_data->wall_index))
 					return (0);
-				wall_index += 1;
+				g_m_data->wall_index += 1;
 			}
 		}
 	}

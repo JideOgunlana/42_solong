@@ -6,16 +6,14 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:31:04 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/28 05:01:40 by bogunlan         ###   ########.fr       */
+/*   Updated: 2022/08/28 17:32:49 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "solong.h"
 
-extern t_game_image		*g_images;
-extern t_map_data		*g_m_data;
 
-void	create_textures(t_texture *val)
+void	create_textures(t_img *val)
 {
 	val->wall_texture =  mlx_load_png("./img/wall1.png");
 	val->player_texture = mlx_load_png("./img/dion.png");
@@ -32,17 +30,17 @@ void	create_textures(t_texture *val)
 	}
 }
 
-void	create_g_images(t_game_image* g_images, mlx_t *mlx, t_texture *val)
+void	create_g_images(mlx_t *mlx, t_img *val)
 {
-	g_images->bg = mlx_texture_to_image(mlx, val->bg_texture);
-	g_images->player = mlx_texture_to_image(mlx, val->player_texture);
-	g_images->wall = mlx_texture_to_image(mlx, val->wall_texture);
-	g_images->collectible = mlx_texture_to_image(mlx, val->collectible_texture);
-	g_images->escape = mlx_texture_to_image(mlx, val->escape_texture);
+	val->bg = mlx_texture_to_image(mlx, val->bg_texture);
+	val->player = mlx_texture_to_image(mlx, val->player_texture);
+	val->wall = mlx_texture_to_image(mlx, val->wall_texture);
+	val->collectible = mlx_texture_to_image(mlx, val->collectible_texture);
+	val->escape = mlx_texture_to_image(mlx, val->escape_texture);
 
-	if (!g_images->bg || !g_images->player
-		|| !g_images->wall || !g_images->collectible
-		|| !g_images->escape)
+	if (!val->bg || !val->player
+		|| !val->wall || !val->collectible
+		|| !val->escape)
 	{
 		ft_putstr_fd("Error\nFailed to load\n", STDOUT_FILENO);
 		exit(EXIT_FAILURE);
