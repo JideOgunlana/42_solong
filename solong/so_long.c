@@ -6,75 +6,73 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/24 12:46:58 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/28 19:23:53 by bogunlan         ###   ########.fr       */
+/*   Updated: 2022/08/29 15:51:01 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "solong.h"
 
-char			*ber_file;
-
 void	hook(void *key)
 {
-	mlx_t	*mlx;
+	int		egg_index;
+	int		wall_index;
+	int		grabbed_eggs;
 
-	mlx = key;
+	egg_index = 0;
+	wall_index = 0;
+	grabbed_eggs = 0;
 
 	if (mlx_is_key_down(key, MLX_KEY_ESCAPE))
 		mlx_close_window(key);
 	else if (mlx_is_key_down(key, MLX_KEY_UP) || mlx_is_key_down(key, MLX_KEY_W))
-		w_key_pressed(map_d, g_img);
+		w_key_pressed(grabbed_eggs,  egg_index, wall_index);
 	else if (mlx_is_key_down(key, MLX_KEY_DOWN) || mlx_is_key_down(key, MLX_KEY_S))
-		s_key_pressed(map_d, g_img);
+		s_key_pressed(grabbed_eggs,  egg_index, wall_index);
 	else if (mlx_is_key_down(key, MLX_KEY_LEFT) || mlx_is_key_down(key, MLX_KEY_A))
-		a_key_pressed(map_d, g_img);
+		a_key_pressed(grabbed_eggs,  egg_index, wall_index);
 	else if (mlx_is_key_down(key, MLX_KEY_RIGHT) || mlx_is_key_down(key, MLX_KEY_D))
-		d_key_pressed(map_d, g_img);
+		d_key_pressed(grabbed_eggs,  egg_index, wall_index);
 }
 
-
-
-void	set_up_game(mlx_t *mlx, t_img *val, t_map_data *g_m_data)
+void	set_up_game(mlx_t *mlx, t_texture *val, t_map_parsing *p_map)
 {
 	create_textures(val);
 	create_g_images(mlx, val);
-	mlx_image_to_window(mlx, val->bg, 0, 0);
-	parse_game_map(mlx, g_m_data, val);
-	check_map_dimensions(g_m_data);
-	if (g_m_data->line_count == g_m_data->map_width1 + 1)
+	mlx_image_to_window(mlx, g_images()->bg, 0, 0);
+	parse_game_map(mlx, p_map);
+	check_map_dimensions();
+	if (g_m_data()->line_count == g_m_data()->map_width1 + 1)
 	{
 		ft_putstr_fd("Error\nMap is a square, it should be rectangular\n", STDOUT_FILENO);
 		exit(1);
 	}
-	check_walls(g_m_data);
-
+	check_walls(g_m_data());
 	mlx_loop_hook(mlx, &hook, mlx);
-	mlx_image_to_window(mlx, val->player, g_m_data->player_location_x, g_m_data->player_location_y);
-	mlx_set_window_size(mlx, (g_m_data->map_width1 + 1) * 48, g_m_data->line_count * 48);
+	mlx_image_to_window(mlx, g_images()->player, g_m_data()->player_location_x, g_m_data()->player_location_y);
+	mlx_set_window_size(mlx, (g_m_data()->map_width1 + 1) * 48, (g_m_data()->line_count) * 48);
 	mlx_loop(mlx);
 	clean_up(mlx, val);
 	mlx_terminate(mlx);
 }
 
-void	start_game()
+void	start_game(char *ber_file)
 {
-	mlx_t		*mlx;
-	t_img		*val;
-	t_map_data	*map_d;
+	mlx_t*			mlx;
+	t_texture		*val;
+	t_map_parsing	map;
 
 
-	mlx = mlx_init(WIDTH, HEIGHT, "Jurassic Age", true);
-	val = (t_img *) malloc(sizeof(t_img));
-	map_d = (t_map_data *) malloc(sizeof(t_map_data));
-	if (!val || !mlx || !map_d)
-		return ;
-	map_d->fd = open(ber_file, O_RDONLY);
-	if (map_d->fd == -1)
+	map.fd = open(ber_file, O_RDONLY);
+	if (map.fd == -1)
 	{
 		perror("Error\n");
 		exit(EXIT_FAILURE);
 	}
-	set_up_game(mlx, val, map_d);
+	mlx = mlx_init(WIDTH, HEIGHT, "Jurassic Age", true);
+	val = (t_texture*) malloc(sizeof(t_texture));
+	if (!val || !mlx)
+		return ;
+	set_up_game(mlx, val, &map);
 }
 
 
@@ -95,15 +93,13 @@ int	main(int argc, char *argv[])
 				{
 					if (argv[1][params.i + 4] != '\0')
 						break;
-					ber_file = argv[1];
 					params.valid_file = 1;
-					start_game();
+					start_game(argv[1]);
 				}
 			}
 		}
 		if (!params.valid_file)
 			ft_putstr_fd("Error\nFile format not valid\n", STDOUT_FILENO);
 	}
-	system("leaks so_long");
 	return (EXIT_SUCCESS);
 }

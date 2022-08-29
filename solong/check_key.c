@@ -1,66 +1,129 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   check_key.c                                        :+:      :+:    :+:   */
+/*   check_moves.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/27 01:16:13 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/28 18:31:34 by bogunlan         ###   ########.fr       */
+/*   Created: 2022/08/27 01:51:25 by bogunlan          #+#    #+#             */
+/*   Updated: 2022/08/28 20:25:17 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "solong.h"
 
-
-void	w_key_pressed(t_map_data *g_m_data, t_img *g_img)
+int	check_for_w_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	int	move;
+	t_params	params;
 
-	g_m_data->grabbed_eggs += picked_collectibles_count(g_img->collectible->count, g_m_data->grabbed_eggs);
-	move = check_for_w_move(g_m_data);
-	if (move && g_m_data->movement_count++)
-		g_img->player->instances[0].y -= 4;
-	ft_putstr_fd("moves: ", STDOUT_FILENO);
-	ft_putnbr_fd(g_m_data->movement_count, STDOUT_FILENO);
-	ft_putchar_fd('\n', STDOUT_FILENO);
+	params.i = -1;
+	while (g_m_data()->arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (g_m_data()->arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, params.i, params.j))
+				exit(1);
+			if (g_m_data()->arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (g_m_data()->arr[params.i][params.j] == '1')
+			{
+				if (wall_in_w_direction(wall_index))
+					return (0);
+				wall_index += 1;
+			}
+		}
+	}
+	return (1);
 }
 
-void	s_key_pressed(t_map_data *g_m_data, t_img *g_img)
+int	check_for_s_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	int	move;
+	t_params	params;
 
-	g_m_data->grabbed_eggs += picked_collectibles_count(g_img->collectible->count, g_m_data->grabbed_eggs);
-	move = check_for_s_move(g_m_data);
-	if (move && g_m_data->movement_count++)
-		g_img->player->instances[0].y += 4;
-	ft_putstr_fd("moves: ", STDOUT_FILENO);
-	ft_putnbr_fd(g_m_data->movement_count, STDOUT_FILENO);
-	ft_putchar_fd('\n', STDOUT_FILENO);
+	params.i = -1;
+	while (g_m_data()->arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (g_m_data()->arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, params.i, params.j))
+				exit(1);
+			if (g_m_data()->arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (g_m_data()->arr[params.i][params.j] == '1')
+			{
+				if (wall_in_s_direction(wall_index))
+					return (0);
+				wall_index += 1;
+			}
+		}
+	}
+	return (1);
 }
 
-void	a_key_pressed(t_map_data *g_m_data,t_img *g_img)
+int	check_for_a_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	int	move;
+	t_params	params;
 
-	g_m_data->grabbed_eggs += picked_collectibles_count(g_img->collectible->count, g_m_data->grabbed_eggs);
-	move = check_for_a_move(g_m_data);
-	if (move && g_m_data->movement_count++)
-		g_img->player->instances[0].x -= 4;
-	ft_putstr_fd("moves: ", STDOUT_FILENO);
-	ft_putnbr_fd(g_m_data->movement_count, STDOUT_FILENO);
-	ft_putchar_fd('\n', STDOUT_FILENO);
+	params.i = -1;
+	while (g_m_data()->arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (g_m_data()->arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, params.i, params.j))
+				exit(1);
+			if (g_m_data()->arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (g_m_data()->arr[params.i][params.j] == '1')
+			{
+				if (wall_in_a_direction(wall_index))
+					return (0);
+				wall_index += 1;
+			}
+		}
+	}
+	return (1);
 }
 
-void	d_key_pressed(t_map_data *g_m_data,t_img *g_img)
+int	check_for_d_move(int grabbed_eggs, int egg_index, int wall_index)
 {
-	int	move;
+	t_params	params;
 
-	g_m_data->grabbed_eggs += picked_collectibles_count(g_img->collectible->count, g_m_data->grabbed_eggs);
-	move = check_for_d_move(g_m_data);
-	if (move && g_m_data->movement_count++)
-		g_img->player->instances[0].x += 4;
-	ft_putstr_fd("moves: ", STDOUT_FILENO);
-	ft_putnbr_fd(g_m_data->movement_count, STDOUT_FILENO);
-	ft_putchar_fd('\n', STDOUT_FILENO);
+	params.i = -1;
+	while (g_m_data()->arr[++params.i] != 0)
+	{
+		params.j = -1;
+		while (g_m_data()->arr[params.i][++params.j] != '\0')
+		{
+			if (player_wins(grabbed_eggs, params.i, params.j))
+				exit(1);
+			if (g_m_data()->arr[params.i][params.j] == 'C')
+			{
+				if (player_on_collectible_tile(egg_index))
+					break ;
+				egg_index += 1;
+			}
+			if (g_m_data()->arr[params.i][params.j] == '1')
+			{
+				if (wall_in_d_direction(wall_index))
+					return (0);
+				wall_index += 1;
+			}
+		}
+	}
+	return (1);
 }

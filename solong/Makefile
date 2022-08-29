@@ -3,8 +3,8 @@ SO_LONG = so_long.a
 CC = cc
 AR = ar rcs
 CFLAGS = -Wall -Werror -Wextra
-MLX_FLAGS =  -I include -lglfw -L "/Users/$(USER)/.brew/opt/glfw/lib/"
-LIBS = ../libft/libft.a MLX42/libmlx42.a
+MLX_FLAGS = -I include -lglfw -L "/Users/$(USER)/.brew/opt/glfw/lib/"
+LIBS = ./libft/libft.a MLX42/libmlx42.a
 
 SRC =	so_long check_key check_moves check_win cleanup \
 		collectibles collision parsing setup wall_checks
