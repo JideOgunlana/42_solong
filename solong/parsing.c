@@ -6,55 +6,55 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:34:35 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/28 23:26:33 by bogunlan         ###   ########.fr       */
+/*   Updated: 2022/08/29 20:13:26 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "solong.h"
 
-void	get_player_location(t_map_parsing *p_map)
+void	get_p(t_map_parsing *p_map)
 {
-		g_m_data()->player_location_x = 48 * p_map->x;
-		g_m_data()->player_location_y = 48 * p_map->y;
-		p_map->player_count++;
+	g_m_data()->p_x = 48 * p_map->x;
+	g_m_data()->p_y = 48 * p_map->y;
+	p_map->player_count++;
 }
 
 void	check_map_composition(t_map_parsing *p_map)
 {
-			if (p_map->line[p_map->j] != '1' && p_map->line[p_map->j] != 'P'
-			&& p_map->line[p_map->j] != 'E' && p_map->line[p_map->j] != 'C'
-			&& p_map->line[p_map->j] != '0' && p_map->line[p_map->j] != '\n')
-			{
-				ft_putstr_fd("Error\nMap contains invalid composition\n", STDOUT_FILENO);
-				ft_putstr_fd("Valid Compositions are: ", STDOUT_FILENO);
-				ft_putstr_fd("0, 1, C, P and E\n", STDOUT_FILENO);
-				exit(1);
-			}
+	if (p_map->line[p_map->j] != '1' && p_map->line[p_map->j] != 'P'
+		&& p_map->line[p_map->j] != 'E' && p_map->line[p_map->j] != 'C'
+		&& p_map->line[p_map->j] != '0' && p_map->line[p_map->j] != '\n')
+	{
+		ft_putstr_fd("Error\nMap contains invalid composition\n", 1);
+		ft_putstr_fd("Valid Compositions are: ", 1);
+		ft_putstr_fd("0, 1, C, P and E\n", 1);
+		exit(1);
+	}
 }
 
-void	check_line(mlx_t *mlx, t_map_parsing *p_map)
+void	check_line(mlx_t *mlx, t_map_parsing *m)
 {
-	while (p_map->line[p_map->j] != '\0')
+	while (m->line[m->j] != '\0')
 	{
-		check_map_composition(p_map);
-		if (p_map->line[p_map->j] == '1')
-			mlx_image_to_window(mlx, g_images()->wall, 48 * p_map->x , 48 * p_map->y);
-		if (p_map->line[p_map->j] == 'P')
-			get_player_location(p_map);
-		if (p_map->line[p_map->j] == 'C')
+		check_map_composition(m);
+		if (m->line[m->j] == '1')
+			mlx_image_to_window(mlx, g_img()->w, 48 * m->x, 48 * m->y);
+		if (m->line[m->j] == 'P')
+			get_p(m);
+		if (m->line[m->j] == 'C')
 		{
-			mlx_image_to_window(mlx, g_images()->collectible, 48 * p_map->x, 48 * p_map->y);
-			p_map->collectible_count += 1;
+			mlx_image_to_window(mlx, g_img()->c, 48 * m->x, 48 * m->y);
+			m->collectible_count += 1;
 		}
-		if (p_map->line[p_map->j] == 'E')
+		if (m->line[m->j] == 'E')
 		{
-			mlx_image_to_window(mlx, g_images()->escape, 48 * p_map->x, 48 * p_map->y);
-			p_map->escape_count++;
+			mlx_image_to_window(mlx, g_img()->e, 48 * m->x, 48 * m->y);
+			m->escape_count++;
 		}
-		if (p_map->line[p_map->j] == '0')
-			p_map->space_count++;
-		p_map->x++;
-		p_map->j++;
+		if (m->line[m->j] == '0')
+			m->space_count++;
+		m->x++;
+		m->j++;
 	}
 }
 
@@ -64,13 +64,13 @@ void	parse_game_map(mlx_t *mlx, t_map_parsing *p_map)
 	while (1)
 	{
 		p_map->j = 0;
-		p_map->x = 0; 
+		p_map->x = 0;
 		p_map->line = get_next_line(p_map->fd);
 		if (!p_map->line)
 			break ;
 		g_m_data()->arr[p_map->y] = p_map->line;
 		check_line(mlx, p_map);
-		g_m_data()->line_count += 1;
+		g_m_data()->lc += 1;
 		p_map->y++;
 	}
 	if (p_map->collectible_count < 1 || p_map->player_count != 1
@@ -84,31 +84,30 @@ void	parse_game_map(mlx_t *mlx, t_map_parsing *p_map)
 	close(p_map->fd);
 }
 
-void	check_map_dimensions(void)
+int	check_map_dimensions(void)
 {
-	int	i;
-	int	j;
+	t_params	param;
 
-	i = 0;
-	while (g_m_data()->arr[i] != 0)
+	param.i = 0;
+	while (g_m_data()->arr[param.i] != 0)
 	{
-		j = 0;
-		while (g_m_data()->arr[i][j] != '\0' && g_m_data()->arr[i][j] != '\n')
+		param.j = 0;
+		while (g_m_data()->arr[param.i][param.j] != '\0'
+			&& g_m_data()->arr[param.i][param.j] != '\n')
 		{
-			if (i == 0 && g_m_data()->arr[i][j + 1] == '\n')
-				g_m_data()->map_width1 = j;
-			if (i > 0 && (g_m_data()->arr[i][j + 1] == '\n' || g_m_data()->arr[i][j + 1] == '\0'))
-				g_m_data()->map_width2 = j;
-			if (g_m_data()->map_width1 && g_m_data()->map_width2)
+			if (param.i == 0 && g_m_data()->arr[param.i][param.j + 1] == '\n')
+				g_m_data()->mw1 = param.j;
+			if (param.i > 0 && (g_m_data()->arr[param.i][param.j + 1] == '\n'
+				|| g_m_data()->arr[param.i][param.j + 1] == '\0'))
+				g_m_data()->mw2 = param.j;
+			if (g_m_data()->mw1 && g_m_data()->mw2)
 			{
-				if (g_m_data()->map_width1 != g_m_data()->map_width2)
-				{
-					ft_putstr_fd("Error\nMap not valid\n", 1);
-					exit(1);
-				}
+				if (g_m_data()->mw1 != g_m_data()->mw2)
+					return (1);
 			}
-			j++;
+			param.j++;
 		}
-		i++;
+		param.i++;
 	}
+	return (0);
 }

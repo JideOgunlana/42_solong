@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/24 12:46:30 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/28 23:05:15 by bogunlan         ###   ########.fr       */
+/*   Updated: 2022/08/29 20:13:36 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 # define SOLONG_H
 # define WIDTH 960
 # define HEIGHT 288
-# define OBJ_LENGTH 42
+# define L 42
 
 # include <unistd.h>
 # include <stdlib.h>
-#include <stdio.h>
+# include <stdio.h>
 # include "MLX42/include/MLX42/MLX42.h"
 # include "gnl/get_next_line.h"
 # include "libft/libft.h"
@@ -45,10 +45,10 @@ typedef struct s_texture
 // variables to create an image
 typedef struct s_game_image
 {
-	mlx_image_t	*player;
-	mlx_image_t	*wall;
-	mlx_image_t	*collectible;
-	mlx_image_t	*escape;
+	mlx_image_t	*p;
+	mlx_image_t	*w;
+	mlx_image_t	*c;
+	mlx_image_t	*e;
 	mlx_image_t	*bg;
 }				t_game_image;
 
@@ -70,39 +70,48 @@ typedef struct s_map_parsing
 typedef struct s_map_data
 {
 	char	*arr[10000000];
-	int		player_location_x;
-	int		player_location_y;
+	int		p_x;
+	int		p_y;
 	int		movement_count;
-	int		line_count;
-	int		map_width1;
-	int		map_width2;
+	int		lc;
+	int		mw1;
+	int		mw2;
 	int		last_line;
 }			t_map_data;
 
-t_game_image	*g_images(void);
+typedef struct s_tex_img
+{
+	mlx_image_t	*p_t_i;
+	mlx_image_t	*w_t_i;
+	mlx_image_t	*bg_t_i;
+	mlx_image_t	*c_t_i;
+	mlx_image_t	*e_t_i;
+}				t_tex_img;
+
+t_game_image	*g_img(void);
 t_map_data		*g_m_data(void);
 t_params		*all(void);
 void			create_textures(t_texture *val);
 void			create_g_images(mlx_t *mlx, t_texture *val);
 void			parse_game_map(mlx_t *mlx, t_map_parsing *p_map);
-void			check_map_dimensions(void);
-void			w_key_pressed(int grabbed_eggs, int egg_index, int wall_index);
-void			s_key_pressed(int grabbed_eggs, int egg_index, int wall_index);
-void			d_key_pressed(int grabbed_eggs, int egg_index, int wall_index);
-void			a_key_pressed(int grabbed_eggs, int egg_index, int wall_index);
-void			check_walls();
+int				check_map_dimensions(void);
+void			w_key_pressed(int grabbed_eggs, int egg_index, int w_i);
+void			s_key_pressed(int grabbed_eggs, int egg_index, int w_i);
+void			d_key_pressed(int grabbed_eggs, int egg_index, int w_i);
+void			a_key_pressed(int grabbed_eggs, int egg_index, int w_i);
+void			check_walls(void);
 void			clean_up(mlx_t *mlx, t_texture *val);
 int				picked_collectible(int egg_index);
-int				check_for_w_move(int grabbed_eggs, int egg_index, int wall_index);
-int				check_for_s_move(int grabbed_eggs, int egg_index, int wall_index);
-int				check_for_a_move(int grabbed_eggs, int egg_index, int wall_index);
-int				check_for_d_move(int grabbed_eggs, int egg_index, int wall_index);
+int				check_for_w_move(int grabbed_eggs, int egg_index, int w_i);
+int				check_for_s_move(int grabbed_eggs, int egg_index, int w_i);
+int				check_for_a_move(int grabbed_eggs, int egg_index, int w_i);
+int				check_for_d_move(int grabbed_eggs, int egg_index, int w_i);
 int				player_wins(int grabbed_eggs, int i, int j);
 int				player_on_collectible_tile(int egg_index);
-int				wall_in_w_direction(int wall_index);
-int				wall_in_s_direction(int wall_index);
-int				wall_in_a_direction(int wall_index);
-int				wall_in_d_direction(int wall_index);
-int				picked_collectibles_count(int collectibles_count, int grabbed_eggs);
+int				wall_in_w_direction(int w_i);
+int				wall_in_s_direction(int w_i);
+int				wall_in_a_direction(int w_i);
+int				wall_in_d_direction(int w_i);
+int				picked_collectibles_count(int c_count, int grabbed_eggs);
 
 #endif
