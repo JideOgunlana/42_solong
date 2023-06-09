@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   solong.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/24 12:46:30 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/29 20:13:36 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/06/09 16:52:44 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include "MLX42/include/MLX42/MLX42.h"
-# include "gnl/get_next_line.h"
-# include "libft/libft.h"
+# include "includes/gnl/get_next_line.h"
+# include "includes/libft/libft.h"
 
 // My struct to save lines
 typedef struct s_params

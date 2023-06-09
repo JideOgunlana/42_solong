@@ -3,8 +3,9 @@ SO_LONG = so_long.a
 CC = cc
 AR = ar rcs
 CFLAGS = -Wall -Werror -Wextra
-MLX_FLAGS = -I include -lglfw -L "/Users/$(USER)/.brew/opt/glfw/lib/"
-LIBS = ./libft/libft.a MLX42/libmlx42.a
+# gcc main.c ... libmlx42.a -Iinclude -ldl -lglfw -pthread -lm
+MLX_FLAGS = -I include -lglfw -ldl -pthread -lm -L "/Users/$(USER)/.brew/opt/glfw/lib/"
+LIBS = ./includes/libft/libft.a MLX42/libmlx42.a
 
 SRC =	so_long check_key check_moves check_win cleanup \
 		collectibles collision parsing setup wall_checks
@@ -12,8 +13,8 @@ SRC =	so_long check_key check_moves check_win cleanup \
 SRCS = ./$(addsuffix .c, $(SRC))
 OBJS = ./$(addsuffix .o, $(SRC))
 
-$(NAME): $(SO_LONG)
-	$(CC) $(CFLAGS) $(MLX_FLAGS) gnl/get_next_line.c gnl/get_next_line_utils.c $(SO_LONG) $(LIBS) -o $(NAME)
+$(NAME): $(SO_LONG) $(LIBS)
+	$(CC)  includes/gnl/get_next_line.c includes/gnl/get_next_line_utils.c $(SO_LONG) $(LIBS) $(CFLAGS) $(MLX_FLAGS) -o $(NAME)
 
 .c.o: $(SRCS)
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -21,11 +22,18 @@ $(NAME): $(SO_LONG)
 $(SO_LONG): $(OBJS)
 	$(AR) $@ $^
 
+$(LIBS):
+	make -C includes/libft
+	make -C MLX42
+
+
 clean: 
 	rm -f $(OBJS) $(SO_LONG)
+	make clean -C includes/libft
 
 fclean: clean
 	rm -f $(NAME)
+	make fclean -C includes/libft
 
 all: $(NAME)
 
