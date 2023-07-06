@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/24 12:46:58 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/29 20:11:14 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/07/06 14:43:34 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,10 @@ void	hook(void *key)
 
 void	set_up_game(mlx_t *mlx, t_texture *val, t_map_parsing *p_map)
 {
+	static	int just_started = 1;
+
 	create_textures(val);
 	create_g_images(mlx, val);
-	mlx_image_to_window(mlx, g_img()->bg, 0, 0);
 	parse_game_map(mlx, p_map);
 	if (check_map_dimensions())
 	{
@@ -55,6 +56,15 @@ void	set_up_game(mlx_t *mlx, t_texture *val, t_map_parsing *p_map)
 	}
 	check_walls();
 	mlx_loop_hook(mlx, &hook, mlx);
+
+	mlx_image_to_window(mlx, g_img()->pl, g_m_data()->p_x, g_m_data()->p_y);
+	if (just_started)
+	{
+		g_img()->pl->instances[0].enabled = 0;
+		just_started = 0;
+	}
+	else
+		g_img()->pl->instances[0].enabled = 1;
 	mlx_image_to_window(mlx, g_img()->p, g_m_data()->p_x, g_m_data()->p_y);
 	mlx_set_window_size(mlx, (g_m_data()->mw1 + 1) * 48, (g_m_data()->lc) * 48);
 	mlx_loop(mlx);

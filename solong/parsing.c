@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:34:35 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/29 20:13:26 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/07/05 14:29:01 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,10 @@ void	check_line(mlx_t *mlx, t_map_parsing *m)
 	while (m->line[m->j] != '\0')
 	{
 		check_map_composition(m);
+		if (m->line[m->j] == '0' || m->line[m->j] == '1' || m->line[m->j] == 'P' ||
+			m->line[m->j] == 'C' || m->line[m->j] == 'E'
+		)
+			mlx_image_to_window(mlx, g_img()->bg, 48 * m->x, 48 * m->y);
 		if (m->line[m->j] == '1')
 			mlx_image_to_window(mlx, g_img()->w, 48 * m->x, 48 * m->y);
 		if (m->line[m->j] == 'P')

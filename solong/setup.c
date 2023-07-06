@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:31:04 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/29 20:00:17 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/07/06 13:58:01 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ void	create_textures(t_texture *val)
 	val->bg_texture = mlx_load_png("./img/map.png");
 	val->collectible_texture = mlx_load_png("./img/egg1.png");
 	val->escape_texture = mlx_load_png("./img/escape.png");
+	val->player_left_texture = mlx_load_png("./img/dino_left.png");
 	if (!val->wall_texture || !val->player_texture
 		|| !val->bg_texture || !val->collectible_texture
 		|| !val->escape_texture)
@@ -51,14 +52,16 @@ void	create_g_images(mlx_t *mlx, t_texture *val)
 	tex_to_img.w_t_i = mlx_texture_to_image(mlx, val->wall_texture);
 	tex_to_img.c_t_i = mlx_texture_to_image(mlx, val->collectible_texture);
 	tex_to_img.e_t_i = mlx_texture_to_image(mlx, val->escape_texture);
+	tex_to_img.p_l_t_i = mlx_texture_to_image(mlx, val->player_left_texture);
 	g_img()->p = tex_to_img.p_t_i;
 	g_img()->w = tex_to_img.w_t_i;
 	g_img()->bg = tex_to_img.bg_t_i;
 	g_img()->c = tex_to_img.c_t_i;
 	g_img()->e = tex_to_img.e_t_i;
+	g_img()->pl = tex_to_img.p_l_t_i;
 	if (!g_img()->bg || !g_img()->p
 		|| !g_img()->w || !g_img()->c
-		|| !g_img()->e)
+		|| !g_img()->e || !g_img()->pl)
 	{
 		ft_putstr_fd("Error\nFailed to load\n", STDOUT_FILENO);
 		exit(EXIT_FAILURE);

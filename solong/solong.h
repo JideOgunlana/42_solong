@@ -6,7 +6,7 @@
 /*   By: bogunlan <bogunlan@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/24 12:46:30 by bogunlan          #+#    #+#             */
-/*   Updated: 2022/08/29 20:13:36 by bogunlan         ###   ########.fr       */
+/*   Updated: 2023/07/06 13:57:30 by bogunlan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include "MLX42/include/MLX42/MLX42.h"
-# include "gnl/get_next_line.h"
-# include "libft/libft.h"
+# include "includes/gnl/get_next_line.h"
+# include "includes/libft/libft.h"
 
 // My struct to save lines
 typedef struct s_params
@@ -40,6 +40,7 @@ typedef struct s_texture
 	mlx_texture_t	*bg_texture;
 	mlx_texture_t	*collectible_texture;
 	mlx_texture_t	*escape_texture;
+	mlx_texture_t	*player_left_texture;
 }				t_texture;
 
 // variables to create an image
@@ -50,6 +51,7 @@ typedef struct s_game_image
 	mlx_image_t	*c;
 	mlx_image_t	*e;
 	mlx_image_t	*bg;
+	mlx_image_t	*pl;
 }				t_game_image;
 
 // variables to parse the map
@@ -86,6 +88,7 @@ typedef struct s_tex_img
 	mlx_image_t	*bg_t_i;
 	mlx_image_t	*c_t_i;
 	mlx_image_t	*e_t_i;
+	mlx_image_t *p_l_t_i;
 }				t_tex_img;
 
 t_game_image	*g_img(void);
