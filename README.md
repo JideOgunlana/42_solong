@@ -11,7 +11,7 @@ This project is a small 2D game designed to improve computer graphics skills. It
 ## Game Rules
 
 - The player's objective is to collect all the collectibles on the map and then escape by choosing the shortest route.
-- Use the W, A, S, and D keys to move the main character.
+- Use the `W`, `A`, `S`, and `D` keys to move the main character.
 - Movement is restricted to four directions: up, down, left, and right.
 - The player cannot move through walls.
 - The current number of movements must be displayed in the shell after each move.
@@ -23,19 +23,19 @@ This project is a small 2D game designed to improve computer graphics skills. It
 
 - The program displays the game's visuals in a window.
 - Window management should be smooth, allowing seamless switching, minimizing, and other operations.
-- Pressing the ESC key should close the window and exit the program cleanly.
-- Clicking on the window's cross button should also close the window and exit the program cleanly.
+- Pressing the `ESC` key should close the window and exit the program cleanly.
+- Clicking on the window's cross (`x`) button should also close the window and exit the program cleanly.
 - The use of images provided by the MiniLibX library is mandatory.
 
 ## Map Construction
 
 - The map consists of three components: walls, collectibles, and free space.
 - The map is represented by the following characters:
-  - '0' for an empty space,
-  - '1' for a wall,
-  - 'C' for a collectible,
-  - 'E' for the map exit,
-  - 'P' for the player's starting position.
+  - `0` for an empty space,
+  - `1` for a wall,
+  - `C` for a collectible,
+  - `E` for the map exit,
+  - `P` for the player's starting position.
 - The map must contain at least one exit, one collectible, and one starting position to be considered valid.
 - Duplicate characters for the exit or starting position should display an error message.
 - The map must be rectangular in shape.
