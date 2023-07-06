@@ -1,13 +1,12 @@
 # So Long
-<!-- ![](https://github.com/JideOgunlana/42_solong/solong/blob/main/public/gameplay.mp4) -->
-
-
-<!-- ![map02 preview](./solong/public/gameplay.mp4) -->
-
 
 ## Description
 
 This project is a small 2D game designed to improve computer graphics skills. It involves working with textures, sprites, and basic gameplay elements. The objective is to create a game using the MiniLibX library, focusing on window management, event handling, colors, textures, and more.
+
+
+## Screenshot
+![map02 preview](./solong/public/map02.png)
 
 ## Game Rules
 
@@ -61,7 +60,4 @@ To run the game with a sample map, use the following command:
 ```
 ./so_long maps/map02.ber
 ```
-
-## Screenshot
-![map02 preview](./solong/public/map02.png)
 
