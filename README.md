@@ -5,8 +5,9 @@
 This project is a small 2D game designed to improve computer graphics skills. It involves working with textures, sprites, and basic gameplay elements. The objective is to create a game using the MiniLibX library, focusing on window management, event handling, colors, textures, and more.
 
 
-## Screenshot
-![map02 preview](./solong/public/map02.png)
+## Gameplay Sample
+![map01 preview](./solong/public/gameplay2.gif)
+
 
 ## Game Rules
 
@@ -46,11 +47,12 @@ This project is a small 2D game designed to improve computer graphics skills. It
 
 Sample of `valid` map
 ``` bash
-11111111
-10000011
-100P1C11
-1E000011
-11111111
+1111111111111111111111111111111111
+1E0000000000000C00000C000000000001
+1010010100100000101001000000010101
+1010010010101010001001000000010101
+1P0000000C00C0000000000000000000C1
+1111111111111111111111111111111111
 ```
 
 ## Usage Example
@@ -60,6 +62,9 @@ To run the game with a sample map, use the following command:
 ```
 ./so_long maps/map02.ber
 ```
+
+## Screenshot
+![map02 preview](./solong/public/map02.png)
 
 <h2>Credits</h3>
 This project is part of the curriculum at <a href="https://www.42heilbronn.de"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/42_Logo.svg/1200px-42_Logo.svg.png" width="20" alt="42" /></a>, a coding school that fosters peer-to-peer learning and project-based education.
