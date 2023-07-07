@@ -6,7 +6,7 @@ This project is a small 2D game designed to improve computer graphics skills. It
 
 
 ## Gameplay Sample
-![map01 preview](./solong/public/gameplay2.gif)
+![map01 preview](./solong/public/gameplay.gif)
 
 
 ## Game Rules
